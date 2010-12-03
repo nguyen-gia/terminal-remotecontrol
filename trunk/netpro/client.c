@@ -1,6 +1,7 @@
 /*
- * server_lib.c
+ * client.c
  *
  *  Created on: Dec 3, 2010
  *  Author: PREDATOR TEAM
  */
+
