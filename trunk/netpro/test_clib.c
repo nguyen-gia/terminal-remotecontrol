@@ -9,6 +9,14 @@
 
 int main(){
 	int s = create_client_socket("12345", "123");
+
+	if (s == -1){
+		perror("*error connecting*");
+		exit(1);
+	}
+
 	char buf[] = "qwerty1234";
 	write(s, buf, sizeof(buf));
+	read(s, buf, sizeof(buf));
+	printf("receive from server: %s\n", buf);
 }
