@@ -5,10 +5,10 @@
  *      Author: abcd
  */
 
-#include <client_lib.h>
+#include "client_lib.h"
 
 int main(){
-	int s = create_client_socket("12345", "123");
+	int s = create_client_socket("12345", "133.27.73.77");
 
 	if (s == -1){
 		perror("*error connecting*");
