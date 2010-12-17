@@ -6,6 +6,7 @@
  */
 
 #include "server_lib.h"
+#include <ncurses.h>
 
 int main(){
 	/* main loop */
@@ -18,18 +19,26 @@ int main(){
 	}
 
 
+	initscr();
+
+	/*printw("abcdTesting...\n");
+	refresh();
+	sleep(2);*/
+
 	while (1) {
 		int i;
 		int newfd;
 		struct sockaddr_storage ss;
 		socklen_t sslen;
 		ssize_t cc;
-		char hostbuf[NI_MAXHOST];
+		char hostbuf[NI_MAXHOST], buf[NI_MAXHOST + 2];
 		int gni;
+		char ch[1];
 
-		printf("Listening...\n");
+		printw("Listening...\n");
+		refresh();
 
-		/* wait for client */
+		//wait for client
 		sslen = sizeof(ss);
 		newfd = accept(s, (struct sockaddr *)&ss, &sslen);
 		if (newfd == -1) {
@@ -37,31 +46,34 @@ int main(){
 			continue;
 		}
 
-		/* print remote address */
+		//print remote address
 		gni = getnameinfo((struct sockaddr *)&ss, sslen,
 				hostbuf, sizeof(hostbuf),
 				NULL, 0,
 				NI_NUMERICHOST);
 		if (gni)
-			strcpy(hostbuf, "???");	/*XXX*/
+			strcpy(hostbuf, "???");	//XXX
 
-		printf("accept from %s\n", hostbuf);
+		printw("%s@ ", hostbuf);
+		refresh();
 
-		/* write some text to the client */
-		cc = write(newfd, message, strlen(message));
-		if (cc == -1) {
-			perror("write");
-		} else if (cc != strlen(message)) {
-			fprintf(stderr,
-					"write returned %d "
-					"while %d is expected.\n",
-					cc, strlen(message));
+		while (1){
+			read(newfd, ch, 1);
+			//write(STDOUT_FILENO, ch, 1);
+			printw("%s", ch);
+			refresh();
+			if (ch[0] == '\n') break;
 		}
 
-		/* done */
+		refresh();
+		// write some text to the client
+
+		// done
 		close(newfd);
 	}
 
+	endwin();
+
 	/* not reached */
-	close(s);
+	//close(s);
 }
