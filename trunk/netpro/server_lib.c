@@ -14,19 +14,21 @@ int create_server_socket(char *port_number){
 	int s;
 	int i;
 
-	/* process the arguments */
+/*	 process the arguments
 	if (argc != 2 && argc != 3) {
 		fprintf(stderr, "Usage: %s [host] portnum\n", argv[0]);
 		exit(1);
-	}
+	}*/
 
-	if (argc == 3) {
+/*	if (argc == 3) {
 		host = argv[1];
 		port = argv[2];
 	} else {
-		host = NULL;	/* Unspecified address */
+		host = NULL;	 Unspecified address
 		port = argv[1];
-	}
+	}*/
+	port = port_number;
+	host = NULL;
 
 	/* resolve the name */
 	memset(&hints, 0, sizeof(hints));
@@ -48,7 +50,8 @@ int create_server_socket(char *port_number){
 	/* create a socket to accept connection from clients */
 	s = -1;
 	for (ai = ai0; ai; ai = ai->ai_next) {
-		int s;
+		//int s;
+		//printf("s = %d\n", s);
 
 		/* create a socket */
 		s = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
