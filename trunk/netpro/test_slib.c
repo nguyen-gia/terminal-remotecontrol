@@ -59,7 +59,6 @@ int main(){
 
 		while (1){
 			read(newfd, ch, 1);
-			//write(STDOUT_FILENO, ch, 1);
 			printw("%s", ch);
 			refresh();
 			if (ch[0] == '\n') break;
