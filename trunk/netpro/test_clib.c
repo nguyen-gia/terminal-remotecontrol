@@ -2,7 +2,7 @@
  * test_clib.c
  *
  *  Created on: Dec 7, 2010
- *      Author: abcd
+ *      Author: PREDATOR TEAM
  */
 
 #include "client_lib.h"
@@ -16,21 +16,28 @@ int main(){
 		exit(1);
 	}
 
-/*	char buf[] = "qwerty1234";
-	write(s, buf, sizeof(buf));
-	read(s, buf, sizeof(buf));
-	printf("receive from server: %s\n", buf);*/
-
 	initscr();
-
+	char line[512];
 	char ch[1];
+	char buffer[10000];
 	int i = 0;
-	while ((ch[0] = getch()) != '\n'){
+	printw("@ ");
+	while (ch[0] = getch()){
 		write(s, ch, 1);
-		/*sleep(1);
-		printw("%c", ch);*/
+		if(ch[0]=='\n')
+		{
+			buffer[0]='\0';
+			printw("\n");
+			refresh();
+			i=read(s,buffer,sizeof(buffer));
+			if(buffer[0]!='\n')
+				{
+					buffer[i]='\0';
+					printw("%s\n",buffer);
+				}
+			refresh();
+			printw("@ ");
+		}
 	}
-	write(s, ch, 1);
-
 	endwin();
 }
