@@ -127,7 +127,7 @@ int get_command_result(char *res, char *cmd){
 }
 
 int send_command_result(char *res, int i32ConnectFD){
-	if(res){
+	if(res[0]!='\0'){
 		write(i32ConnectFD, res, strlen(res));
 		return 0;
 	}else{
