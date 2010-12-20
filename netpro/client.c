@@ -22,6 +22,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	initscr();
+	noecho();
 	char line[512];
 	char ch;
 	char buffer[10000];
@@ -29,6 +30,10 @@ int main(int argc, char *argv[]) {
 	printw("@ ");
 	while (ch = getch()) {
 		write(s, &ch, 1);
+		if (ch == 127){
+			backspace();
+		}
+		else addch(ch);
 		if (ch == '\n') {
 			clear();
 			buffer[0] = '\0';
