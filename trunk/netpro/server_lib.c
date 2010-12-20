@@ -86,7 +86,7 @@ int get_command_name(char* cmd, int i32ConnectFD){
 	int count = 0;
 	cmd[0] = '\0';
 	while(1){
-		read(i32ConnectFD, &ch, sizeof(char));
+		read(i32ConnectFD, &ch, 1);
 		printw("%c", ch);
 		refresh();
 		if(ch == '\n') break;
@@ -99,9 +99,10 @@ int get_command_name(char* cmd, int i32ConnectFD){
 
 int get_command_result(char *res, char *cmd){
 	FILE *fp = NULL;
-	res = NULL;
+	//res = NULL;
 	if ((fp = popen(cmd, "r")) == NULL) {
 		printw("Error when execute this command\n");
+		refresh();
 		return -1;
 	}
 

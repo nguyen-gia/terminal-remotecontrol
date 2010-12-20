@@ -111,7 +111,7 @@ int main(){
 			write(newfd,buffer,strlen(buffer));
 			}*/
 
-		//send_command_result(buffer, newfd);
+		send_command_result(buffer, newfd);
 
 		printw("%s@ ", hostbuf);
 		refresh();
