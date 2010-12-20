@@ -75,7 +75,7 @@ int main(){
 		command[count] = '\0';
 
 		// int get_command_result(char *cmd, char*res)
-		if((fp=popen(command,"r"))==NULL)
+		/*if((fp=popen(command,"r"))==NULL)
 		{
 			printw("Error when execute this command\n");
 			continue;
@@ -92,12 +92,13 @@ int main(){
 			}
 			refresh();
 		}
-		pclose(fp);
+		pclose(fp);*/
+		get_command_result(buffer, command);
 
 		printw("%s",buffer);
 		refresh();
 
-		// int send_result(char* res)
+		// int send_result(char* res, int i32ConnectFD)
 		if(buffer[0]!='\0')
 			write(newfd,buffer,strlen(buffer));
 		else
