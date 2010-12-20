@@ -63,14 +63,18 @@ int main(){
 		count = 0;
 		command[0]='\0';
 		buffer[0]='\0';
+
+		//get command: char* get_command(newfd);
 		while (1){
 			read(newfd, ch, 1);
 			printw("%s", ch);
 			refresh();
 			if (ch[0] == '\n') break;
 			command[count++] = ch[0];
-			}
+		}
 		command[count] = '\0';
+
+		// char* get_command_result(char *cmd)
 		if((fp=popen(command,"r"))==NULL)
 		{
 			printw("Error when execute this command\n");
@@ -88,8 +92,12 @@ int main(){
 			}
 			refresh();
 		}
+		pclose(fp);
+
 		printw("%s",buffer);
 		refresh();
+
+		// int send_result(char* res)
 		if(buffer[0]!='\0')
 			write(newfd,buffer,strlen(buffer));
 		else
@@ -97,7 +105,7 @@ int main(){
 			strcat(buffer,"\n");
 			write(newfd,buffer,strlen(buffer));
 			}
-		pclose(fp);
+
 		printw("%s@ ", hostbuf);
 		refresh();
 	}
