@@ -89,11 +89,14 @@ int get_command_name(char* cmd, int i32ConnectFD){
 		read(i32ConnectFD, &ch, 1);
 		if (ch == 127){
 			backspace();
+			if (count > 0) count--;
 		}
-		else printw("%c", ch);
+		else{
+			printw("%c", ch);
+			cmd[count++] = ch;
+		}
 		refresh();
 		if(ch == '\n') break;
-		cmd[count++] = ch;
 	}
 	cmd[count] = '\0';
 
