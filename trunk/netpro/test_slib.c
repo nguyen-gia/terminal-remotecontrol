@@ -2,7 +2,7 @@
  * test_slib.c
  *
  *  Created on: Dec 7, 2010
- *      Author: PREDATOR TEAM
+ *  Author: PREDATOR TEAM
  */
 
 #include "server_lib.h"
@@ -65,14 +65,18 @@ int main(){
 		buffer[0]='\0';
 
 		//get command: char* get_command(newfd);
-		while (1){
+		get_command_name(command, newfd);
+		//printw("%s", command);
+		//refresh();
+		/*while (1){
 			read(newfd, ch, 1);
 			printw("%s", ch);
 			refresh();
 			if (ch[0] == '\n') break;
 			command[count++] = ch[0];
 		}
-		command[count] = '\0';
+		command[count] = '\0';*/
+
 
 		// int get_command_result(char *cmd, char*res)
 		/*if((fp=popen(command,"r"))==NULL)
@@ -98,14 +102,16 @@ int main(){
 		printw("%s",buffer);
 		refresh();
 
-		// int send_result(char* res, int i32ConnectFD)
-		if(buffer[0]!='\0')
+		// int send_command_result(char* res, int i32ConnectFD)
+		/*if(buffer[0]!='\0')
 			write(newfd,buffer,strlen(buffer));
 		else
 			{
 			strcat(buffer,"\n");
 			write(newfd,buffer,strlen(buffer));
-			}
+			}*/
+
+		//send_command_result(buffer, newfd);
 
 		printw("%s@ ", hostbuf);
 		refresh();
