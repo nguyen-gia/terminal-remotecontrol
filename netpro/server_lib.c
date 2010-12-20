@@ -81,8 +81,25 @@ int create_server_socket(char *port_number){
 	return s;
 }
 
+int get_command_name(char* cmd, int i32ConnectFD){
+	int ch;
+	int count = 0;
+	cmd[0] = '\0';
+	while(1){
+		read(i32ConnectFD, &ch, sizeof(char));
+		printw("%c", ch);
+		refresh();
+		if(ch == '\n') break;
+		cmd[count++] = ch;
+	}
+	cmd[count] = '\0';
+
+	return count;
+}
+
 int get_command_result(char *res, char *cmd){
 	FILE *fp = NULL;
+	res = NULL;
 	if ((fp = popen(cmd, "r")) == NULL) {
 		printw("Error when execute this command\n");
 		return -1;
@@ -103,4 +120,15 @@ int get_command_result(char *res, char *cmd){
 	pclose(fp);
 
 	return 0;
+}
+
+int send_command_result(char *res, int i32ConnectFD){
+	if(res){
+		write(i32ConnectFD, res, strlen(res));
+		return 0;
+	}else{
+		strcat(res, "\n");
+		write(i32ConnectFD, res, strlen(res));
+		return -1;
+	}
 }
