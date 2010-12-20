@@ -74,7 +74,7 @@ int main(){
 		}
 		command[count] = '\0';
 
-		// char* get_command_result(char *cmd)
+		// int get_command_result(char *cmd, char*res)
 		if((fp=popen(command,"r"))==NULL)
 		{
 			printw("Error when execute this command\n");
