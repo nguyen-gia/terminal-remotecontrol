@@ -68,7 +68,7 @@ int main(int argc, char *argv[]){
 		}
 		if(strcmp(rtcargv[0],"cd")!=0)
 		{
-			//doan nay la lua thay
+			//doan nay la lua thay, he he
 			strcpy(ncmd,rtcargv[0]);
 			for(j=1;j<rtcargc;j++)
 			{
