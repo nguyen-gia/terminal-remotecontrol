@@ -82,7 +82,7 @@ int create_server_socket(char *port_number){
 }
 
 int get_command_name(char* cmd, int i32ConnectFD){
-	int ch;
+	char ch;
 	int count = 0;
 	cmd[0] = '\0';
 	while(1){
