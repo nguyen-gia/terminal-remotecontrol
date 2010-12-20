@@ -106,12 +106,15 @@ int get_command_result(char *res, char *cmd){
 		return -1;
 	}
 
+	//printw("%s", cmd);
+	//refresh();
+
 	int k = 0;
 	char line[512];
 
 	while (fgets(line, sizeof(line), fp) != NULL) {
 		if (k == 0) {
-			strcpy(res,line);
+			sprintf(res, "%s", line);
 			k++;
 		} else {
 			strcat(res,line);
