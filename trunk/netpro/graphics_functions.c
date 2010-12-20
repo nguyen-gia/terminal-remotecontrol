@@ -29,6 +29,11 @@ int main(){
 		}
 		else addch(ch);
 	}
+	int i;
+	for (i=0; i<50; i++){
+		printw("%d\n", i);
+		refresh();
+	}
 	sleep(2);
 	endwin();
 }
