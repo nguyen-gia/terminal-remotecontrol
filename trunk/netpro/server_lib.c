@@ -6,6 +6,7 @@
  */
 
 #include "server_lib.h"
+#include <ncurses.h>
 
 int create_server_socket(char *port_number){
 	char *host, *port;
@@ -78,4 +79,28 @@ int create_server_socket(char *port_number){
 	freeaddrinfo(ai0);
 
 	return s;
+}
+
+int get_command_result(char *res, char *cmd){
+	FILE *fp = NULL;
+	if ((fp = popen(cmd, "r")) == NULL) {
+		printw("Error when execute this command\n");
+		return -1;
+	}
+
+	int k = 0;
+	char line[512];
+
+	while (fgets(line, sizeof(line), fp) != NULL) {
+		if (k == 0) {
+			strcpy(res,line);
+			k++;
+		} else {
+			strcat(res,line);
+		}
+		refresh();
+	}
+	pclose(fp);
+
+	return 0;
 }
