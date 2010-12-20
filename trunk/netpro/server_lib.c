@@ -87,7 +87,10 @@ int get_command_name(char* cmd, int i32ConnectFD){
 	cmd[0] = '\0';
 	while(1){
 		read(i32ConnectFD, &ch, 1);
-		printw("%c", ch);
+		if (ch == 127){
+			backspace();
+		}
+		else printw("%c", ch);
 		refresh();
 		if(ch == '\n') break;
 		cmd[count++] = ch;

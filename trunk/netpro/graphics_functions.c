@@ -17,7 +17,7 @@ void backspace(){
 	}
 }
 
-int main(){
+/*int main(){
 	char ch;
 	initscr();
 	noecho();
@@ -36,4 +36,4 @@ int main(){
 	}
 	sleep(2);
 	endwin();
-}
+}*/
