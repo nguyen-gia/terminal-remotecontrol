@@ -26,8 +26,11 @@ int main(int argc, char *argv[]) {
 	char line[512];
 	char ch;
 	char buffer[10000];
+	char path[50];
 	int i = 0;
-	printw("@ ");
+	i=read(s,path,sizeof(path));
+	path[i]='\0';
+	printw("%s@",path);
 	while (ch = getch()) {
 		write(s, &ch, 1);
 		if (ch == 127){
@@ -40,15 +43,30 @@ int main(int argc, char *argv[]) {
 			printw("\n");
 			refresh();
 			i = read(s, buffer, sizeof(buffer));
+
 			if (buffer[0] != '\n') {
 				buffer[i] = '\0';
-				printw("%s\n", buffer);
-				refresh();
+				if(strcmp(buffer,"exit")==0)
+					{
+					endwin();
+					return 1;
+					}
+				if(buffer[strlen(buffer)-1]=='\1')
+							{
+								buffer[strlen(buffer)-1]='\0';
+								strcpy(path,buffer);
+							}
+				else
+				{
+					printw("%s\n", buffer);
+					refresh();
+				}
 			}
+
 			//while (read(s, &ch, 1) > 0){
 				//addch(ch);
 			//}
-			printw("@ ");
+			printw("%s@",path);
 		}
 	}
 	endwin();

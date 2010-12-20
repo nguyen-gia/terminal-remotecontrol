@@ -142,3 +142,19 @@ int send_command_result(char *res, int i32ConnectFD){
 		return -1;
 	}
 }
+
+int parse(char *cmd, char *rtcargv[])
+{
+  int rtcargc;
+  rtcargc = 0;
+  while(*cmd&& *cmd<=' ')*cmd++='\0';
+  while(*cmd)
+    {
+      rtcargv[rtcargc++] = cmd;
+      while(*cmd && *cmd>' ') cmd++;
+      while(*cmd && *cmd<=' ')
+	*cmd++ = '\0';
+    }
+  rtcargv[rtcargc]= NULL;
+  return rtcargc;
+}
