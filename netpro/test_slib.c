@@ -22,9 +22,9 @@ int main(){
 	initscr();
 	int i;
 	int newfd;
-	//struct sockaddr_storage ss;
-	//socklen_t sslen;
-	//ssize_t cc;
+	struct sockaddr_storage ss;
+	socklen_t sslen;
+	ssize_t cc;
 	char hostbuf[NI_MAXHOST], buf[NI_MAXHOST + 2];
 	int gni;
 	char ch[1];
