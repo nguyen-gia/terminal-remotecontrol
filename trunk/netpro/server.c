@@ -55,7 +55,7 @@ int main(int argc, char *argv[]){
 		printw("%s", res);
 		refresh();
 
-		//send_command_result(res, i32ConnectFD);
+		send_command_result(res, i32ConnectFD);
 		printw("@");
 		refresh();
 	}
