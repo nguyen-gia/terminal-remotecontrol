@@ -6,6 +6,7 @@
  */
 #include "server_lib.h"
 #include <ncurses.h>
+#include <curses.h>
 
 int main(int argc, char *argv[]){
 	if(argc != 2){
@@ -51,12 +52,12 @@ int main(int argc, char *argv[]){
 		//printw("%s", cmd);
 		//refresh();
 		get_command_result(res, cmd);
-
+		clear();
 		printw("%s", res);
 		refresh();
 
 		send_command_result(res, i32ConnectFD);
-		printw("@");
+		printw("\n@");
 		refresh();
 	}
 
