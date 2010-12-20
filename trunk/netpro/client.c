@@ -32,14 +32,14 @@ int main(int argc, char *argv[]) {
 			buffer[0] = '\0';
 			printw("\n");
 			refresh();
-			/*i = read(s, buffer, sizeof(buffer));
+			i = read(s, buffer, sizeof(buffer));
 			if (buffer[0] != '\n') {
 				buffer[i] = '\0';
 				printw("%s\n", buffer);
-			}*/
-			while (read(s, &ch, 1) > 0){
-				addch(ch);
 			}
+			/*while (read(s, &ch, 1) > 0){
+				addch(ch);
+			}*/
 			refresh();
 			printw("@ ");
 		}
