@@ -7,6 +7,7 @@
 
 #include "client_lib.h"
 #include <ncurses.h>
+#include <curses.h>
 
 int main(int argc, char *argv[]) {
 	if (argc != 3) {
@@ -29,6 +30,7 @@ int main(int argc, char *argv[]) {
 	while (ch = getch()) {
 		write(s, &ch, 1);
 		if (ch == '\n') {
+			clear();
 			buffer[0] = '\0';
 			printw("\n");
 			refresh();
@@ -36,11 +38,11 @@ int main(int argc, char *argv[]) {
 			if (buffer[0] != '\n') {
 				buffer[i] = '\0';
 				printw("%s\n", buffer);
+				refresh();
 			}
-			/*while (read(s, &ch, 1) > 0){
-				addch(ch);
-			}*/
-			refresh();
+			//while (read(s, &ch, 1) > 0){
+				//addch(ch);
+			//}
 			printw("@ ");
 		}
 	}
