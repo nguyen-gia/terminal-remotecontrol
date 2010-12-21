@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
 	int i = 0;
 	i=read(s,path,sizeof(path));
 	path[i]='\0';
-	printw("%s@",path);
+	printw("%s @",path);
 	while (ch = getch()) {
 		write(s, &ch, 1);
 		if (ch == 127){
@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
 		if (ch == '\n') {
 			clear();
 			buffer[0] = '\0';
-			printw("\n");
+			//printw("\n");
 			refresh();
 			i = read(s, buffer, sizeof(buffer));
 
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 			//while (read(s, &ch, 1) > 0){
 				//addch(ch);
 			//}
-			printw("%s@",path);
+			printw("%s @",path);
 		}
 	}
 	endwin();
