@@ -156,5 +156,6 @@ int parse(char *cmd, char *rtcargv[])
 	*cmd++ = '\0';
     }
   rtcargv[rtcargc]= NULL;
+  if(rtcargc==0) rtcargv[0]=" ";
   return rtcargc;
 }

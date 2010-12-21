@@ -42,7 +42,7 @@ int main(int argc, char *argv[]){
 	char hostbuf[NI_MAXHOST];
 	int gni = getnameinfo((struct sockaddr *)&ss, sslen,hostbuf, sizeof(hostbuf),NULL, 0,NI_NUMERICHOST);
 	getwd(path);
-	printw("%s@",path);
+	printw("%s @",path);
 	refresh();
 	write(i32ConnectFD,path,strlen(path));
 
@@ -80,7 +80,8 @@ int main(int argc, char *argv[]){
 			printw("%s\n",ncmd);
 			refresh();*/
 			get_command_result(res, ncmd);
-			printw("%s", res);
+			if(res[0]!='\n')
+				printw("%s\n", res);
 			refresh();
 			send_command_result(res, i32ConnectFD);
 		}
@@ -92,10 +93,9 @@ int main(int argc, char *argv[]){
 			write(i32ConnectFD,path,strlen(path));
 			path[strlen(path)-1]='\0';
 		}
-		printw("\n%s@",path);
+		printw("%s @",path);
 		refresh();
 	}
-
 	refresh();
 	close(i32ConnectFD);
 	endwin();
