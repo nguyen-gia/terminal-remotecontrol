@@ -90,8 +90,8 @@ int main(int argc, char *argv[]){
 			getwd(path);
 			strcat(path,"\1");
 			write(i32ConnectFD,path,strlen(path));
+			path[strlen(path)-1]='\0';
 		}
-		path[strlen(path)-1]='\0';
 		printw("\n%s@",path);
 		refresh();
 	}
