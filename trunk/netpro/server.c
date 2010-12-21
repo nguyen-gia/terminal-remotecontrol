@@ -63,6 +63,7 @@ int main(int argc, char *argv[]){
 		if(strcmp(rtcargv[0],"exit")==0)
 		{
 			write(i32ConnectFD,"exit",4);
+			close(i32ConnectFD);
 			endwin();
 			return 1;
 		}
