@@ -59,16 +59,21 @@ int run_client(int client_socket){
 	char ch;
 	char buffer[10000];
 	char path[50];
+
 	int i = 0;
 	i=read(client_socket,path,sizeof(path));
 	path[i]='\0';
-	printw("%s @",path);
+	printw("%s@ ",path);
+	refresh();
+
 	while (ch = getch()) {
 		write(client_socket, &ch, 1);
 		if (ch == 127){
 			backspace();
 		}
 		else addch(ch);
+		refresh();
+
 		if (ch == '\n') {
 			clear();
 			buffer[0] = '\0';
@@ -94,8 +99,8 @@ int run_client(int client_socket){
 					refresh();
 				}
 			}
-
-			printw("%s @",path);
+			printw("%s@ ",path);
+			refresh();
 		}
 	}
 	endwin();
