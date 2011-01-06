@@ -15,19 +15,6 @@ int create_server_socket(char *port_number){
 	int s;
 	int i;
 
-/*	 process the arguments
-	if (argc != 2 && argc != 3) {
-		fprintf(stderr, "Usage: %s [host] portnum\n", argv[0]);
-		exit(1);
-	}*/
-
-/*	if (argc == 3) {
-		host = argv[1];
-		port = argv[2];
-	} else {
-		host = NULL;	 Unspecified address
-		port = argv[1];
-	}*/
 	port = port_number;
 	host = NULL;
 
@@ -158,4 +145,89 @@ int parse(char *cmd, char *rtcargv[])
   rtcargv[rtcargc]= NULL;
   if(rtcargc==0) rtcargv[0]=" ";
   return rtcargc;
+}
+
+int run_server(int serv_socket){
+	initscr();
+	//noecho();
+	printw("Listening...\n");
+	refresh();
+
+	int i32ConnectFD;
+	struct sockaddr_storage ss;
+	char path[50];
+	char* rtcargv[16];
+	socklen_t sslen = sizeof(struct sockaddr_storage);
+	while(1){
+		i32ConnectFD = accept(serv_socket, (struct sockaddr *)&ss, &sslen);
+		if(i32ConnectFD < 0){
+			perror("accept()");
+			continue;
+		}else
+			break;
+	}
+
+	char hostbuf[NI_MAXHOST];
+	int gni = getnameinfo((struct sockaddr *)&ss, sslen,hostbuf, sizeof(hostbuf),NULL, 0,NI_NUMERICHOST);
+	getwd(path);
+	printw("%s @ ",path);
+	refresh();
+	write(i32ConnectFD,path,strlen(path));
+
+	while(1){
+		int count = 0;
+		char cmd[512];
+		char res[10000];
+		cmd[0] = '\0';
+		res[0] = '\0';
+		char ncmd[512];
+		int rtcargc;
+		int j;
+		get_command_name(cmd, i32ConnectFD);
+		//printw("%s", cmd);
+		//refresh();
+		clear();
+		rtcargc=parse(cmd,rtcargv);
+		if(strcmp(rtcargv[0],"exit")==0)
+		{
+			write(i32ConnectFD,"exit",4);
+			close(i32ConnectFD);
+			endwin();
+			return 1;
+		}
+		if(strcmp(rtcargv[0],"cd")!=0)
+		{
+			//doan nay la lua thay, he he
+			strcpy(ncmd,rtcargv[0]);
+			for(j=1;j<rtcargc;j++)
+			{
+				strcat(ncmd," ");
+				strcat(ncmd,rtcargv[j]);
+			}
+			/*printw("%d\n",rtcargc);
+			refresh();
+			printw("%s\n",ncmd);
+			refresh();*/
+			get_command_result(res, ncmd);
+			if(res[0]!='\n')
+				printw("%s\n", res);
+			refresh();
+			send_command_result(res, i32ConnectFD);
+		}
+		else
+		{
+			chdir(rtcargv[1]);
+			getwd(path);
+			strcat(path,"\1");
+			write(i32ConnectFD,path,strlen(path));
+			path[strlen(path)-1]='\0';
+		}
+		printw("%s @ ",path);
+		refresh();
+	}
+
+	//not reach
+	refresh();
+	close(i32ConnectFD);
+	endwin();
 }
