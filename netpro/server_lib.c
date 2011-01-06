@@ -92,7 +92,6 @@ int receive_command_name(char* cmd, int i32ConnectFD){
 
 int get_command_result(char *res, char *cmd){
 	FILE *fp = NULL;
-	//res = NULL;
 	if ((fp = popen(cmd, "r")) == NULL) {
 		printw("Error when execute this command\n");
 		refresh();
