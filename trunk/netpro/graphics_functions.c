@@ -52,26 +52,24 @@ void backspace(){
 	}
 }
 
-void printInfo(){
+void printInfo(char *server_host){
 	WINDOW *my_win;
 	int startx, starty, width, height;
 	int ch;
 
-	//initscr();			/* Start curses mode 		*/
-	//cbreak();			/* Line buffering disabled, Pass on
-	 	 	 	 	 	// * everty thing to me 		*/
 	//keypad(stdscr, TRUE);		/* I need that nifty F1 	*/
 
 	height = 15;
 	width = 30;
-	//starty = (LINES - height) / 2;	/* Calculating for a center placement */
-	//startx = (COLS - width) / 2;	/* of the window		*/
 	starty = 0;
 	startx = COLS - width - 5;
-	//printw("Press F1 to exit");
-	refresh();
-	my_win = create_newwin(height, width, starty, startx);
 
+	my_win = create_newwin(height, width, starty, startx);
+	refresh();
+
+	mvwprintw(my_win, 1, 5, "Server: %s", server_host);
+	mvwprintw(my_win, 2, 1, "abcd");
+	wrefresh(my_win);
 }
 
 /*int main(){
