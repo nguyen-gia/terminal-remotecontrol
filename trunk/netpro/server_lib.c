@@ -68,7 +68,7 @@ int create_server_socket(char *port_number){
 	return s;
 }
 
-int get_command_name(char* cmd, int i32ConnectFD){
+int receive_command_name(char* cmd, int i32ConnectFD){
 	char ch;
 	int count = 0;
 	cmd[0] = '\0';
@@ -147,6 +147,11 @@ int parse(char *cmd, char *rtcargv[])
   return rtcargc;
 }
 
+/*
+ * This function use select() to handle multi-client connection
+ * Input: server socket descriptor
+ * Return value:
+ */
 int run_server(int serv_socket){
 	initscr();
 	//noecho();
@@ -169,12 +174,15 @@ int run_server(int serv_socket){
 
 	char hostbuf[NI_MAXHOST];
 	int gni = getnameinfo((struct sockaddr *)&ss, sslen,hostbuf, sizeof(hostbuf),NULL, 0,NI_NUMERICHOST);
-	getwd(path);
-	printw("%s @ ",path);
+
+	getcwd(path, sizeof(path));
 	refresh();
-	write(i32ConnectFD,path,strlen(path));
+	write(i32ConnectFD, path, strlen(path));
 
 	while(1){
+		printw("%s@ ",path);
+		refresh();
+
 		int count = 0;
 		char cmd[512];
 		char res[10000];
@@ -183,10 +191,9 @@ int run_server(int serv_socket){
 		char ncmd[512];
 		int rtcargc;
 		int j;
-		get_command_name(cmd, i32ConnectFD);
-		//printw("%s", cmd);
-		//refresh();
+		receive_command_name(cmd, i32ConnectFD);
 		clear();
+
 		rtcargc=parse(cmd,rtcargv);
 		if(strcmp(rtcargv[0],"exit")==0)
 		{
@@ -204,25 +211,22 @@ int run_server(int serv_socket){
 				strcat(ncmd," ");
 				strcat(ncmd,rtcargv[j]);
 			}
-			/*printw("%d\n",rtcargc);
-			refresh();
-			printw("%s\n",ncmd);
-			refresh();*/
+
 			get_command_result(res, ncmd);
 			if(res[0]!='\n')
 				printw("%s\n", res);
 			refresh();
+			printInfo();
 			send_command_result(res, i32ConnectFD);
 		}
 		else
-		{
+		{	//in case of 'cd' command
 			chdir(rtcargv[1]);
-			getwd(path);
+			getcwd(path, sizeof(path));
 			strcat(path,"\1");
 			write(i32ConnectFD,path,strlen(path));
 			path[strlen(path)-1]='\0';
 		}
-		printw("%s @ ",path);
 		refresh();
 	}
 
