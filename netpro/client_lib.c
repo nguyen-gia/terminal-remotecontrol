@@ -6,6 +6,7 @@
  */
 
 #include "client_lib.h"
+#include <ncurses.h>
 
 int create_client_socket(char* server_port_number, char *server_ip_address){
 	char *host, *port;
@@ -49,4 +50,53 @@ int create_client_socket(char* server_port_number, char *server_ip_address){
 	freeaddrinfo(ai0);
 
 	return s;
+}
+
+int run_client(int client_socket){
+	initscr();
+	noecho();
+	char line[512];
+	char ch;
+	char buffer[10000];
+	char path[50];
+	int i = 0;
+	i=read(client_socket,path,sizeof(path));
+	path[i]='\0';
+	printw("%s @",path);
+	while (ch = getch()) {
+		write(client_socket, &ch, 1);
+		if (ch == 127){
+			backspace();
+		}
+		else addch(ch);
+		if (ch == '\n') {
+			clear();
+			buffer[0] = '\0';
+			//printw("\n");
+			refresh();
+			i = read(client_socket, buffer, sizeof(buffer));
+
+			if (buffer[0] != '\n') {
+				buffer[i] = '\0';
+				if(strcmp(buffer,"exit")==0)
+				{
+					endwin();
+					return 1;
+				}
+				if(buffer[strlen(buffer)-1]=='\1')
+				{
+					buffer[strlen(buffer)-1]='\0';
+					strcpy(path,buffer);
+				}
+				else
+				{
+					printw("%s\n", buffer);
+					refresh();
+				}
+			}
+
+			printw("%s @",path);
+		}
+	}
+	endwin();
 }
