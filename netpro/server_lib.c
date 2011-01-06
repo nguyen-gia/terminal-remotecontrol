@@ -146,6 +146,24 @@ int parse(char *cmd, char *rtcargv[])
   return rtcargc;
 }
 
+int acceptNewConnect(int serv_socket, char *hostbuf){
+	int i32ConnectFD;
+	struct sockaddr_storage ss;
+	socklen_t sslen = sizeof(struct sockaddr_storage);
+	while(1){
+		i32ConnectFD = accept(serv_socket, (struct sockaddr *)&ss, &sslen);
+		if(i32ConnectFD < 0){
+			perror("accept()");
+			continue;
+		}else
+			break;
+	}
+
+	int gni = getnameinfo((struct sockaddr *)&ss, sslen,hostbuf, sizeof(hostbuf),NULL, 0,NI_NUMERICHOST);
+
+	return i32ConnectFD;
+}
+
 /*
  * This function use select() to handle multi-client connection
  * Input: server socket descriptor
@@ -157,26 +175,20 @@ int run_server(int serv_socket){
 	printw("Listening...\n");
 	refresh();
 
-	int i32ConnectFD;
-	struct sockaddr_storage ss;
+	char hostbuf[NI_MAXHOST];
+	int i32ConnectFD = acceptNewConnect(serv_socket, hostbuf);
+
 	char path[50];
 	char* rtcargv[16];
-	socklen_t sslen = sizeof(struct sockaddr_storage);
-	while(1){
-		i32ConnectFD = accept(serv_socket, (struct sockaddr *)&ss, &sslen);
-		if(i32ConnectFD < 0){
-			perror("accept()");
-			continue;
-		}else
-			break;
-	}
-
-	char hostbuf[NI_MAXHOST];
-	int gni = getnameinfo((struct sockaddr *)&ss, sslen,hostbuf, sizeof(hostbuf),NULL, 0,NI_NUMERICHOST);
 
 	getcwd(path, sizeof(path));
 	refresh();
 	write(i32ConnectFD, path, strlen(path));
+
+	char server_host[256];
+	gethostname(server_host, sizeof(server_host));
+
+	printInfo(server_host);
 
 	while(1){
 		printw("%s@ ",path);
@@ -215,7 +227,7 @@ int run_server(int serv_socket){
 			if(res[0]!='\n')
 				printw("%s\n", res);
 			refresh();
-			printInfo();
+
 			send_command_result(res, i32ConnectFD);
 		}
 		else
@@ -226,6 +238,7 @@ int run_server(int serv_socket){
 			write(i32ConnectFD,path,strlen(path));
 			path[strlen(path)-1]='\0';
 		}
+		printInfo(server_host);
 		refresh();
 	}
 
