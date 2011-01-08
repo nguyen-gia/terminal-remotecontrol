@@ -56,7 +56,7 @@ int run_client(int client_socket){
 	char check[15];
 	i=read(client_socket,check,sizeof(check));
 	check[i]='\0';
-	puts(check);
+	//printf("%s\n", check);
 	if(strcmp(check,"controller")==0)
 		run_ctrl_client(client_socket);
 	else
