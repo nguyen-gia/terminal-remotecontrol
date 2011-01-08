@@ -55,11 +55,12 @@ int run_client(int client_socket){
 	int i;
 	char check[15];
 	i=read(client_socket,check,sizeof(check));
-	check[i]="\0";
-	if(strcmp(check,"controller")==0)
+	check[i]='\0';
+	printf("%s\n", check);
+	/*if(strcmp(check,"controller")==0)
 		run_ctrl_client(client_socket);
 	else
-		run_normal_client(client_socket);
+		run_normal_client(client_socket);*/
 }
 
 int run_ctrl_client(int client_socket){
