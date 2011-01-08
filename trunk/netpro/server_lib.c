@@ -168,6 +168,12 @@ int acceptNewConnect(int serv_socket, char *hostbuf){
 	return i32ConnectFD;
 }
 
+void add_client_host(char *client_hosts[], int newfd, char* hostbuf){
+	client_hosts[newfd] = (char*)malloc(strlen(hostbuf) + 1);
+	strcpy(client_hosts[newfd], hostbuf);
+}
+
+
 /*
  * This function use select() to handle multi-client connection
  * Input: server socket descriptor
@@ -312,8 +318,4 @@ int run_server(int serv_socket){
 	refresh();
 	close(serv_socket);
 	endwin();
-}
-void add_client_host(char *client_hosts[], int newfd, char* hostbuf){
-	client_hosts[newfd] = (char*)malloc(strlen(hostbuf) + 1);
-	strcpy(client_hosts[newfd], hostbuf);
 }
