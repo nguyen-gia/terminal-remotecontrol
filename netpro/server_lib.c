@@ -192,6 +192,9 @@ int run_server(int serv_socket){
 	// store list of clients being connected
 	// the socket descriptor is index of this array
 	char* client_hosts[12];
+	int i;
+	for (i=0;i<12;i++) client_hosts[i] = NULL;
+
 	int ctrl_sock_fd = -1; // socket descriptor value of the client which is controller
 	int max_sock_fd = serv_socket;	//max of socket descriptor values, used to iterator
 
@@ -225,6 +228,7 @@ int run_server(int serv_socket){
 				char hostbuf[NI_MAXHOST];
 				int newfd = acceptNewConnect(serv_socket, hostbuf);
 				printw("New accept from %s\n", hostbuf);
+				add_client_host(client_hosts, newfd, hostbuf);
 
 				FD_SET(newfd, &fds_init);
 
@@ -308,4 +312,8 @@ int run_server(int serv_socket){
 	refresh();
 	close(serv_socket);
 	endwin();
+}
+void add_client_host(char *client_hosts[], int newfd, char* hostbuf){
+	client_hosts[newfd] = (char*)malloc(strlen(hostbuf) + 1);
+	strcpy(client_hosts[newfd], hostbuf);
 }
