@@ -234,8 +234,8 @@ int run_server(int serv_socket){
 				char hostbuf[NI_MAXHOST];
 				int newfd = acceptNewConnect(serv_socket, hostbuf);
 				printw("New accept from %s\n", hostbuf);
-				add_client_host(client_hosts, newfd, hostbuf);
 
+				add_client_host(client_hosts, newfd, hostbuf);
 				FD_SET(newfd, &fds_init);
 
 				if (newfd > max_sock_fd) max_sock_fd = newfd;
@@ -310,6 +310,11 @@ int run_server(int serv_socket){
 				}
 				printInfo(server_host, client_hosts);
 				refresh();
+			}
+			if (i != serv_socket && i != ctrl_sock_fd){
+				printw("Socket %d has closed\n", i);
+				FD_CLR(i, &fds_init);
+				client_hosts[i] = NULL;
 			}
 		}
 	}
