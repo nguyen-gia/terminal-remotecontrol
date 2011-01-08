@@ -175,23 +175,26 @@ int run_server(int serv_socket){
 	printw("Listening...\n");
 	refresh();
 
+	//accept new connect and get the client host
 	char hostbuf[NI_MAXHOST];
 	int i32ConnectFD = acceptNewConnect(serv_socket, hostbuf);
 
 	char path[50];
-	char* rtcargv[16];
 
+	// get the current path
 	getcwd(path, sizeof(path));
 	refresh();
 	write(i32ConnectFD, path, strlen(path));
 
+	// get localhost name
 	char server_host[256];
 	gethostname(server_host, sizeof(server_host));
 
+	// (graphics_function.c) print information about current connection state
 	printInfo(server_host);
 
 	while(1){
-		printw("%s@ ",path);
+		printw("%s@ ",path);	// print the current path before each command is typed
 		refresh();
 
 		int count = 0;
@@ -200,12 +203,18 @@ int run_server(int serv_socket){
 		cmd[0] = '\0';
 		res[0] = '\0';
 		char ncmd[512];
+		char* rtcargv[16];
 		int rtcargc;
 		int j;
+
+		// receive and display each character from client and combine into one command
 		receive_command_name(cmd, i32ConnectFD);
 		clear();
 
+		// split cmd into array of command name and arguments
 		rtcargc=parse(cmd,rtcargv);
+
+		// in case of exit
 		if(strcmp(rtcargv[0],"exit")==0)
 		{
 			write(i32ConnectFD,"exit",4);
@@ -213,8 +222,9 @@ int run_server(int serv_socket){
 			endwin();
 			return 1;
 		}
+
 		if(strcmp(rtcargv[0],"cd")!=0)
-		{
+		{	// execute normal command
 			//doan nay la lua thay, he he
 			strcpy(ncmd,rtcargv[0]);
 			for(j=1;j<rtcargc;j++)
@@ -223,20 +233,23 @@ int run_server(int serv_socket){
 				strcat(ncmd,rtcargv[j]);
 			}
 
+			// execute and store the result as a string 'res'
 			get_command_result(res, ncmd);
-			if(res[0]!='\n')
-				printw("%s\n", res);
+
+			// print the result if exist
+			if(res[0]!='\n') printw("%s\n", res);
 			refresh();
 
+			// then send the result to client via socket in order to display on client side
 			send_command_result(res, i32ConnectFD);
 		}
 		else
 		{	//in case of 'cd' command
-			chdir(rtcargv[1]);
-			getcwd(path, sizeof(path));
-			strcat(path,"\1");
-			write(i32ConnectFD,path,strlen(path));
-			path[strlen(path)-1]='\0';
+			chdir(rtcargv[1]);			// execute the change dir
+			getcwd(path, sizeof(path)); // get current path
+			strcat(path,"\1");			// mark the string 'path' before send to client
+			write(i32ConnectFD,path,strlen(path));	// send to client to change current path on client side too
+			path[strlen(path)-1]='\0';	// remove the mark
 		}
 		printInfo(server_host);
 		refresh();
