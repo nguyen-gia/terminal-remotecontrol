@@ -106,4 +106,58 @@ int run_ctrl_client(int client_socket){
 	endwin();
 }
 
-int run_normal_client
+int run_normal_client(int client_socket)
+{
+	initscr();
+	noecho();
+	char line[512];
+	char ch;
+	char buffer[10000];
+	char path[50];
+
+	int i = 0;
+	i=read(client_socket,path,sizeof(path));
+	path[i]='\0';
+	printw("%s@ ",path);
+	refresh();
+
+	while (1) {
+		read(client_socket, &ch, 1);
+		if (ch == 127){
+		backspace();
+	}
+	else addch(ch);
+	refresh();
+
+	if (ch == '\n') {
+		clear();
+		buffer[0] = '\0';
+		//printw("\n");
+		refresh();
+		i = read(client_socket, buffer, sizeof(buffer));
+
+			if (buffer[0] != '\n') {
+				buffer[i] = '\0';
+				if(strcmp(buffer,"exit")==0)
+				{
+					endwin();
+					return 1;
+				}
+				if(buffer[strlen(buffer)-1]=='\1')
+				{
+					buffer[strlen(buffer)-1]='\0';
+					strcpy(path,buffer);
+				}
+				else
+				{
+					printw("%s\n", buffer);
+					refresh();
+				}
+			}
+			printw("%s@ ",path);
+			refresh();
+		}
+	}
+	endwin();
+
+}
