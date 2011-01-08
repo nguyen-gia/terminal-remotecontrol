@@ -197,7 +197,6 @@ int run_server(int serv_socket){
 		printw("%s@ ",path);	// print the current path before each command is typed
 		refresh();
 
-		int count = 0;
 		char cmd[512];
 		char res[10000];
 		cmd[0] = '\0';
