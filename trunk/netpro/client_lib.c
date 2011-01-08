@@ -52,7 +52,7 @@ int create_client_socket(char* server_port_number, char *server_ip_address){
 	return s;
 }
 
-int run_client(int client_socket){
+int run_ctrl_client(int client_socket){
 	initscr();
 	noecho();
 	char line[512];

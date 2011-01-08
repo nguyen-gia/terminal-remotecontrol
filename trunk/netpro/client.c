@@ -19,5 +19,5 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
-	run_client(client_socket);
+	run_ctrl_client(client_socket);
 }

@@ -27,7 +27,7 @@
 #endif /* SERVER_LIB_H_ */
 
 int create_server_socket(char *port_number);
-int receive_command_name(char *cmd, int i32ConnectFD);
+int receive_command_name(char* cmd, int i32ConnectFD, fd_set*init, int maxfd, int serv_socket);
 int get_command_result(char *res, char *cmd);
 int send_command_result(char *result, int i32ConnectFD);
 
