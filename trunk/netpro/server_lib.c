@@ -14,6 +14,7 @@ int create_server_socket(char *port_number){
 	int gai;
 	int s;
 	int i;
+	int on = 1;
 
 	port = port_number;
 	host = NULL;
@@ -46,6 +47,20 @@ int create_server_socket(char *port_number){
 		if (s == -1)
 			continue;
 
+#ifdef IPV6_V6ONLY
+		/*
+		 * Try to set IPV6_V6ONLY; since some systems (e.g. old
+		 * Linux) do not support IPV6_V6ONLY, just ignore the error
+		 * here.
+		 */
+		if (ai->ai_family == AF_INET6 &&
+		    setsockopt(s,
+			       IPPROTO_IPV6, IPV6_V6ONLY,
+			       &on, sizeof(on)) == -1) {
+			perror("setsockopt(IPV6_V6ONLY)");
+			/* fall through */
+		}
+#endif
 
 		/* bind the socket to the local port */
 		if (bind(s, ai->ai_addr, ai->ai_addrlen) == -1) {
@@ -182,7 +197,8 @@ void add_client_host(char *client_hosts[], int newfd, char* hostbuf){
 int run_server(int serv_socket){
 	initscr();
 	//noecho();
-
+	printw("Listening...\n");
+		refresh();
 	char path[50];
 
 	// get the current path
@@ -199,7 +215,7 @@ int run_server(int serv_socket){
 	for (i=0;i<12;i++) client_hosts[i] = NULL;
 
 	// (graphics_function.c) print information about current connection state
-	printInfo(server_host,client_hosts);
+	//printInfo(server_host,client_hosts);
 
 	int ctrl_sock_fd = -1; // socket descriptor value of the client which is controller
 	int max_sock_fd = serv_socket;	//max of socket descriptor values, used to iterator
@@ -210,11 +226,10 @@ int run_server(int serv_socket){
 	FD_SET(serv_socket, &fds_init);
 
 	while(1){
-		printw("Listening...\n");
-		refresh();
+
 
 		if (max_sock_fd != serv_socket){
-			printw("%d@%s@ ", ctrl_sock_fd, path);	// print the current path before each command is typed
+			printw("%s@ ",path);	// print the current path before each command is typed
 			refresh();
 		}
 
@@ -233,7 +248,7 @@ int run_server(int serv_socket){
 				//accept new connect and get the client host
 				char hostbuf[NI_MAXHOST];
 				int newfd = acceptNewConnect(serv_socket, hostbuf);
-				printw("New accept from %s\n", hostbuf);
+				//printw("\nNew accept from %s\n", hostbuf);
 
 				add_client_host(client_hosts, newfd, hostbuf);
 				FD_SET(newfd, &fds_init);
@@ -307,9 +322,10 @@ int run_server(int serv_socket){
 					}
 					path[strlen(path)-1]='\0';	// remove the mark
 				}
-				printInfo(server_host, client_hosts);
-				refresh();
+
 			}
+			printInfo(server_host, client_hosts);
+			refresh();
 			if (i != serv_socket && i != ctrl_sock_fd){
 				printw("Socket %d has closed\n", i);
 				FD_CLR(i, &fds_init);
