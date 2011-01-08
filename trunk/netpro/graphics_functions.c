@@ -56,7 +56,7 @@ void printInfo(char *server_host, char* client_host[]){
 	WINDOW *my_win;
 	int startx, starty, width, height;
 	int ch;
-	int i=0;
+	int i=0,row=2;
 	//keypad(stdscr, TRUE);		/* I need that nifty F1 	*/
 
 	height = 15;
@@ -71,8 +71,9 @@ void printInfo(char *server_host, char* client_host[]){
 	for(i=0;i<12;i++)
 		if(client_host[i]!=NULL)
 			{
-				mvwprintw(my_win, 2, 1, client_host[i]);
+				mvwprintw(my_win, row, 1, client_host[i]);
 				wrefresh(my_win);
+				row++;
 			}
 }
 
