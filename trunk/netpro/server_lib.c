@@ -284,7 +284,6 @@ int run_server(int serv_socket){
 
 					// then send the result to client via socket in order to display on client side
 					for (j=0; j<=max_sock_fd; j++)if (j!=serv_socket && FD_ISSET(j, &fds_init)){
-						printw("%d\n", j);
 						send_command_result(res, j);
 					}
 				}
@@ -299,7 +298,7 @@ int run_server(int serv_socket){
 					}
 					path[strlen(path)-1]='\0';	// remove the mark
 				}
-				printInfo(server_host);
+				printInfo(server_host, client_hosts);
 				refresh();
 			}
 		}
