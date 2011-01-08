@@ -52,7 +52,7 @@ void backspace(){
 	}
 }
 
-void printInfo(char *server_host){
+void printInfo(char *server_host, char* client_host[]){
 	WINDOW *my_win;
 	int startx, starty, width, height;
 	int ch;
