@@ -193,6 +193,12 @@ int run_server(int serv_socket){
 	// (graphics_function.c) print information about current connection state
 	printInfo(server_host);
 
+	// store list of clients being connected
+	// the socket descriptor is index of this array
+	char* client_hosts[12];
+	int ctrl_sock_fd = 0; // socket descriptor value of the client which is controller
+	int max_sock_fd;	//max of socket descriptor values, used to iterator
+
 	while(1){
 		printw("%s@ ",path);	// print the current path before each command is typed
 		refresh();
