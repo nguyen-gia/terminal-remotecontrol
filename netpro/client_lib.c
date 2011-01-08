@@ -51,6 +51,16 @@ int create_client_socket(char* server_port_number, char *server_ip_address){
 
 	return s;
 }
+int run_client(int client_socket){
+	int i;
+	char check[15];
+	i=read(client_socket,check,sizeof(check));
+	check[i]="\0";
+	if(strcmp(check,"controller")==0)
+		run_ctrl_client(client_socket);
+	else
+		run_normal_client(client_socket);
+}
 
 int run_ctrl_client(int client_socket){
 	initscr();
@@ -59,7 +69,6 @@ int run_ctrl_client(int client_socket){
 	char ch;
 	char buffer[10000];
 	char path[50];
-
 	int i = 0;
 	i=read(client_socket,path,sizeof(path));
 	path[i]='\0';

@@ -83,11 +83,9 @@ int receive_command_name(char* cmd, int i32ConnectFD, fd_set*init, int maxfd, in
 			cmd[count++] = ch;
 		}
 		int i;
-
-		//send the character to all client
-		/*for (i=0; i<=maxfd; i++) if (i!=serv_socket && i!=i32ConnectFD && FD_ISSET(i, init)){
+		for (i=0; i<=maxfd; i++) if (i!=serv_socket && i!=i32ConnectFD && FD_ISSET(i, init)){
 			write(i, &ch, 1);
-		}*/
+		}
 		refresh();
 		if(ch == '\n') break;
 	}
@@ -194,7 +192,7 @@ int run_server(int serv_socket){
 	// store list of clients being connected
 	// the socket descriptor is index of this array
 	char* client_hosts[12];
-	int ctrl_sock_fd = 0; // socket descriptor value of the client which is controller
+	int ctrl_sock_fd = -1; // socket descriptor value of the client which is controller
 	int max_sock_fd = serv_socket;	//max of socket descriptor values, used to iterator
 
 	fd_set fds, fds_init;
@@ -227,13 +225,16 @@ int run_server(int serv_socket){
 				char hostbuf[NI_MAXHOST];
 				int newfd = acceptNewConnect(serv_socket, hostbuf);
 				printw("New accept from %s\n", hostbuf);
-
+				if(i==ctrl_sock_fd)
+					write(i,"controller",strlen("controller")+1);
+				else
+					write(i,"not",strlen("not")+1);
 				write(newfd, path, strlen(path));
 
 				FD_SET(newfd, &fds_init);
 
 				if (newfd > max_sock_fd) max_sock_fd = newfd;
-				if (ctrl_sock_fd == 0) ctrl_sock_fd = newfd;
+				if (ctrl_sock_fd == -1) ctrl_sock_fd = newfd;
 			}
 			if (i == ctrl_sock_fd){
 				char cmd[512];
