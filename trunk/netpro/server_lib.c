@@ -257,7 +257,9 @@ int run_server(int serv_socket){
 				// in case of exit
 				if(strcmp(rtcargv[0],"exit")==0)
 				{
-					write(i,"exit",4);
+					for (j=0; j<=max_sock_fd; j++)if (j!=serv_socket && FD_ISSET(j, &fds_init)){
+						write(j,"exit",4);
+					}
 					close(i);
 					endwin();
 					return 1;
