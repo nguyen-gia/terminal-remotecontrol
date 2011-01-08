@@ -192,14 +192,14 @@ int run_server(int serv_socket){
 	char server_host[256];
 	gethostname(server_host, sizeof(server_host));
 
-	// (graphics_function.c) print information about current connection state
-	printInfo(server_host);
-
 	// store list of clients being connected
 	// the socket descriptor is index of this array
 	char* client_hosts[12];
 	int i;
 	for (i=0;i<12;i++) client_hosts[i] = NULL;
+
+	// (graphics_function.c) print information about current connection state
+	printInfo(server_host,client_hosts);
 
 	int ctrl_sock_fd = -1; // socket descriptor value of the client which is controller
 	int max_sock_fd = serv_socket;	//max of socket descriptor values, used to iterator
