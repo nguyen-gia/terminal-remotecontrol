@@ -225,16 +225,17 @@ int run_server(int serv_socket){
 				char hostbuf[NI_MAXHOST];
 				int newfd = acceptNewConnect(serv_socket, hostbuf);
 				printw("New accept from %s\n", hostbuf);
-				if(i==ctrl_sock_fd)
-					write(i,"controller",strlen("controller")+1);
-				else
-					write(i,"not",strlen("not")+1);
-				write(newfd, path, strlen(path));
 
 				FD_SET(newfd, &fds_init);
 
 				if (newfd > max_sock_fd) max_sock_fd = newfd;
-				if (ctrl_sock_fd == -1) ctrl_sock_fd = newfd;
+				if (ctrl_sock_fd == -1){
+					ctrl_sock_fd = newfd;
+					write(newfd,"controller",strlen("controller")+1);
+				}
+				else
+					write(newfd,"not",strlen("not")+1);
+				write(newfd, path, strlen(path));
 			}
 			if (i == ctrl_sock_fd){
 				char cmd[512];
