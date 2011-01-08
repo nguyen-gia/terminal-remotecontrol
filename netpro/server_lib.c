@@ -46,6 +46,7 @@ int create_server_socket(char *port_number){
 		if (s == -1)
 			continue;
 
+
 		/* bind the socket to the local port */
 		if (bind(s, ai->ai_addr, ai->ai_addrlen) == -1) {
 			close(s);
@@ -163,8 +164,7 @@ int acceptNewConnect(int serv_socket, char *hostbuf){
 			break;
 	}
 
-	int gni = getnameinfo((struct sockaddr *)&ss, sslen, hostbuf, sizeof(hostbuf),NULL, 0,NI_NUMERICHOST);
-
+	int gni = getnameinfo((struct sockaddr *)&ss, sslen, hostbuf, 256,NULL, 0,NI_NUMERICHOST);
 	return i32ConnectFD;
 }
 
@@ -237,7 +237,6 @@ int run_server(int serv_socket){
 
 				add_client_host(client_hosts, newfd, hostbuf);
 				FD_SET(newfd, &fds_init);
-
 				if (newfd > max_sock_fd) max_sock_fd = newfd;
 				if (ctrl_sock_fd == -1){
 					ctrl_sock_fd = newfd;
