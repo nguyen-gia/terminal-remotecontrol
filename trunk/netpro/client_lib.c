@@ -105,3 +105,5 @@ int run_ctrl_client(int client_socket){
 	}
 	endwin();
 }
+
+int run_normal_client
