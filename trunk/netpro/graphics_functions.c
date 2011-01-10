@@ -72,11 +72,11 @@ void printInfo(char *server_host, char* client_host[]){
 
 	//mvprintw(startx + 1, starty + 1, "Server: %s", server_host);
 	//start_color();			/* Start color 			*/
-	init_pair(1, COLOR_RED, COLOR_BLACK);
+	//init_pair(1, COLOR_RED, COLOR_BLACK);
 
-	attron(COLOR_PAIR(1));
+	//attron(COLOR_PAIR(1));
 	mvprintw(starty, startx, "Server: %s", server_host);
-	attroff(COLOR_PAIR(1));
+	//attroff(COLOR_PAIR(1));
 
 	refresh();
 	for(i=0;i<12;i++)
