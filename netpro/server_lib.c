@@ -313,7 +313,8 @@ int run_server(int serv_socket){
 				//accept new connect and get the client host
 				char hostbuf[NI_MAXHOST];
 				int newfd = acceptNewConnect(serv_socket, hostbuf);
-
+				printw("\n%s connected\n",hostbuf);
+				refresh();
 				add_client_host(client_hosts, newfd, hostbuf);
 				FD_SET(newfd, &fds_init);
 				if (newfd > max_sock_fd) max_sock_fd = newfd;
@@ -324,7 +325,7 @@ int run_server(int serv_socket){
 				else
 					write(newfd,"not",strlen("not")+1);
 				write(newfd, path, strlen(path));
-				clear();
+				//clear();
 			}
 			else
 			if (i == ctrl_sock_fd){
