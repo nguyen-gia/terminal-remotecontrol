@@ -167,7 +167,8 @@ void add_client_host(char *client_hosts[], int newfd, char* hostbuf){
 	strcpy(client_hosts[newfd], hostbuf);
 }
 
-int receive_and_run(int ctrl_sock_fd, int serv_socket, int max_sock_fd, fd_set* fds_init_addr, char*path){
+int receive_and_run(int* ctrl_sock_fd, int serv_socket, int max_sock_fd, fd_set* fds_init_addr, char*path, char* client_hosts[])
+{
 	char cmd[512];
 	char res[10000];
 	cmd[0] = '\0';
@@ -178,7 +179,7 @@ int receive_and_run(int ctrl_sock_fd, int serv_socket, int max_sock_fd, fd_set* 
 	int j;
 
 	// receive and display each character from client and combine into one command
-	receive_command_name(cmd, ctrl_sock_fd, fds_init_addr, max_sock_fd, serv_socket);
+	receive_command_name(cmd, *ctrl_sock_fd, fds_init_addr, max_sock_fd, serv_socket);
 	clear();
 
 	// split cmd into array of command name and arguments
@@ -190,47 +191,69 @@ int receive_and_run(int ctrl_sock_fd, int serv_socket, int max_sock_fd, fd_set* 
 		for (j=0; j<=max_sock_fd; j++)if (j!=serv_socket && FD_ISSET(j, fds_init_addr)){
 			write(j,"exit",4);
 		}
-		close(ctrl_sock_fd);
+		close(*ctrl_sock_fd);
 		endwin();
 		return 1;
 	}
-
-	if(strcmp(rtcargv[0],"cd")!=0)
+	if(strcmp(rtcargv[0],"change")==0)
 	{
-		// execute normal command
-		strcpy(ncmd,rtcargv[0]);
-		for(j=1;j<rtcargc;j++)
-		{
-			strcat(ncmd," ");
-			strcat(ncmd,rtcargv[j]);
-		}
-
-		// execute and store the result as a string 'res'
-		get_command_result(res, ncmd);
-
-		// print the result if exist
-		if(res[0]!='\n') printw("%s\n", res);
-		refresh();
-
-		// then send the result to client via socket in order to display on client side
-		for (j=0; j<=max_sock_fd; j++)if (j!=serv_socket && FD_ISSET(j, fds_init_addr)){
-			send_command_result(res, j);
-		}
+		int i,count=0;
+		int old;
+		int order;
+		order=atoi(rtcargv[1]);
+		for(i=0;i<=12;i++)
+			{
+			if(client_hosts[i]!=NULL)
+				count++;
+			if(count==order) break;
+			}
+			old = *ctrl_sock_fd;
+			*ctrl_sock_fd = i;
+			for (j=0; j<=max_sock_fd; j++)if (j!=serv_socket && FD_ISSET(j, fds_init_addr)){
+				if(j!=*ctrl_sock_fd) write(j,"changed",strlen("changed")+1);
+				else  write(j,"controller",strlen("controller")+1);
+			}
 	}
 	else
-	{	//in case of 'cd' command
-		chdir(rtcargv[1]);			// execute the change dir
-		getcwd(path, 50); // get current path
-		strcat(path,"\1");			// mark the string 'path' before send to client
+	{
+		if(strcmp(rtcargv[0],"cd")!=0)
+		{
+			// execute normal command
+			strcpy(ncmd,rtcargv[0]);
+			for(j=1;j<rtcargc;j++)
+			{
+				strcat(ncmd," ");
+				strcat(ncmd,rtcargv[j]);
+			}
 
-		for (j=0; j<=max_sock_fd; j++)if (j!=serv_socket && FD_ISSET(j, fds_init_addr)){
-			write(j,path,strlen(path));	// send to client to change current path on client side too
+			// execute and store the result as a string 'res'
+			get_command_result(res, ncmd);
+
+			// print the result if exist
+			if(res[0]!='\n') printw("%s\n", res);
+			refresh();
+
+			// then send the result to client via socket in order to display on client side
+			for (j=0; j<=max_sock_fd; j++)if (j!=serv_socket && FD_ISSET(j, fds_init_addr)){
+				send_command_result(res, j);
+			}
 		}
-		path[strlen(path)-1]='\0';	// remove the mark
-	}
+		else
+		{	//in case of 'cd' command
+			chdir(rtcargv[1]);			// execute the change dir
+			getcwd(path, 50); // get current path
+			strcat(path,"\1");			// mark the string 'path' before send to client
 
-	return 0;
+			for (j=0; j<=max_sock_fd; j++)if (j!=serv_socket && FD_ISSET(j, fds_init_addr)){
+				write(j,path,strlen(path));	// send to client to change current path on client side too
+			}
+			path[strlen(path)-1]='\0';	// remove the mark
+		}
+
+		return 0;
+	}
 }
+
 
 /*
  * This function use select() to handle multi-client connection
@@ -303,24 +326,24 @@ int run_server(int serv_socket){
 				write(newfd, path, strlen(path));
 				clear();
 			}
-
+			else
 			if (i == ctrl_sock_fd){
-				int j = receive_and_run(i, serv_socket, max_sock_fd, &fds_init, path);
+				int j = receive_and_run(&ctrl_sock_fd, serv_socket, max_sock_fd, &fds_init, path, client_hosts);
 				if (j==1){
 					return 1;
 				}
 			}
-			printInfo(server_host, client_hosts);
-			refresh();
+			else
 			if (i != serv_socket && i != ctrl_sock_fd){
 				//printw("Socket %d has closed\n", i);
 				FD_CLR(i, &fds_init);
 				client_hosts[i] = NULL;
 				clear();
-				printInfo(server_host, client_hosts);
-				refresh();
+				/*printInfo(server_host, client_hosts);
+				refresh();*/
 			}
-
+			printInfo(server_host, client_hosts);
+			refresh();
 		}
 	}
 

@@ -52,30 +52,41 @@ int create_client_socket(char* server_port_number, char *server_ip_address){
 	return s;
 }
 int run_client(int client_socket){
-	int i;
+	int i,j,k;
 	char check[15];
+	char firstpath[50];
+	initscr();
+	noecho();
 	i=read(client_socket,check,sizeof(check));
 	check[i]='\0';
 	//printf("%s\n", check);
 	if(strcmp(check,"controller")==0)
-		run_ctrl_client(client_socket);
+		j=2;
 	else
-		run_normal_client(client_socket);
-}
+		j=3;
+	i=read(client_socket,firstpath,sizeof(firstpath));
+	firstpath[i]='\0';
+	while(1)
+	{
+		if(j==1) return 1;
+		if(j==2)
+			j=run_ctrl_client(client_socket,firstpath);
+		else
+			j=run_normal_client(client_socket,firstpath);
 
-int run_ctrl_client(int client_socket){
-	initscr();
-	noecho();
+	}
+}
+int run_ctrl_client(int client_socket, char* firstpath){
 	char line[512];
 	char ch;
 	char buffer[10000];
 	char path[50];
-	int i = 0;
-	i=read(client_socket,path,sizeof(path));
-	path[i]='\0';
+	int i;
+
+	printw("You are controller\n");
+	strcpy(path,firstpath);
 	printw("%s@ ",path);
 	refresh();
-
 	while (ch = getch()) {
 		write(client_socket, &ch, 1);
 		if (ch == 127){
@@ -98,15 +109,23 @@ int run_ctrl_client(int client_socket){
 					endwin();
 					return 1;
 				}
-				if(buffer[strlen(buffer)-1]=='\1')
-				{
-					buffer[strlen(buffer)-1]='\0';
-					strcpy(path,buffer);
-				}
 				else
 				{
-					printw("%s\n", buffer);
-					refresh();
+					if(strcmp(buffer,"changed")==0)
+						return 3;
+					else
+					{
+						if(buffer[strlen(buffer)-1]=='\1')
+						{
+							buffer[strlen(buffer)-1]='\0';
+							strcpy(path,buffer);
+						}
+						else
+						{
+							printw("%s\n", buffer);
+							refresh();
+						}
+					}
 				}
 			}
 			printw("%s@ ",path);
@@ -116,18 +135,16 @@ int run_ctrl_client(int client_socket){
 	endwin();
 }
 
-int run_normal_client(int client_socket)
+int run_normal_client(int client_socket,char* firstpath)
 {
-	initscr();
-	noecho();
 	char line[512];
 	char ch;
 	char buffer[10000];
 	char path[50];
+	int i;
 
-	int i = 0;
-	i=read(client_socket,path,sizeof(path));
-	path[i]='\0';
+	printw("You are normal client\n");
+	strcpy(path,firstpath);
 	printw("%s@ ",path);
 	refresh();
 
@@ -152,16 +169,27 @@ int run_normal_client(int client_socket)
 					endwin();
 					return 1;
 				}
-				if(buffer[strlen(buffer)-1]=='\1')
-				{
-					buffer[strlen(buffer)-1]='\0';
-					strcpy(path,buffer);
-				}
 				else
 				{
-					printw("%s\n", buffer);
-					refresh();
-				}
+					if(strcmp(buffer,"changed")==0)
+						printw("Control permision has changed\n");
+					else
+						{
+						if(strcmp(buffer,"controller")==0)
+							return 2;
+						else
+							if(buffer[strlen(buffer)-1]=='\1')
+							{
+								buffer[strlen(buffer)-1]='\0';
+								strcpy(path,buffer);
+							}
+							else
+							{
+								printw("%s\n", buffer);
+								refresh();
+							}
+						}
+					}
 			}
 			printw("%s@ ",path);
 			refresh();
