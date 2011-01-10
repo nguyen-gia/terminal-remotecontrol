@@ -53,9 +53,9 @@ void backspace(){
 }
 
 void printInfo(char *server_host, char* client_host[]){
-	//WINDOW *my_win;
+	WINDOW *my_win;
 	int startx, starty, width, height;
-	int i=0,row=1;
+	int i=0,row=2;
 	//keypad(stdscr, TRUE);		/* I need that nifty F1 	*/
 
 	height = 15;
@@ -63,10 +63,7 @@ void printInfo(char *server_host, char* client_host[]){
 	starty = LINES-height;
 	startx = COLS - width;
 
-	int curx, cury;
-	getyx(stdscr, cury, curx);
-
-	//my_win = create_newwin(height, width, starty, startx);
+	my_win = create_newwin(height, width, starty, startx);
 	//refresh();
 	//mvprintw(10,10, "printInfo %d %d\n", startx, starty);
 
@@ -75,18 +72,17 @@ void printInfo(char *server_host, char* client_host[]){
 	//init_pair(1, COLOR_RED, COLOR_BLACK);
 
 	//attron(COLOR_PAIR(1));
-	mvprintw(starty, startx, "Server: %s", server_host);
+	mvwprintw(my_win, 1, 1, "Server: %s", server_host);
+	wrefresh(my_win);
 	//attroff(COLOR_PAIR(1));
 
-	refresh();
 	for(i=0;i<12;i++)
 		if(client_host[i]!=NULL)
 			{
-				mvprintw(starty + row, startx, "%s", client_host[i]);
-				refresh();
+				mvwprintw(my_win, row, 1 , "%s", client_host[i]);
+				wrefresh(my_win);
 				row++;
 			}
-	move(cury, curx);
 }
 
 /*int main(){
