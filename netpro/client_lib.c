@@ -58,14 +58,13 @@ int receive_connection_info(int client_socket, char *path, char* server_host, ch
 
 	//char *buf;
 	//buf = (char*)malloc(1000);
-	char bufs[1000];
+	char bufs[500];
 	bzero(bufs,sizeof(bufs));
 
 	i = read(client_socket, bufs, sizeof(bufs));
 	bufs[i] = '\0';
 
-	char *buf = bufs;
-
+	char*buf =bufs;
 	//
 	printw("%s\n", buf);
 	refresh();
@@ -92,14 +91,12 @@ int receive_connection_info(int client_socket, char *path, char* server_host, ch
 		buf[i] = '\0';
 		int index = atoi(buf);
 
-		client_hosts[index] = (char*)malloc(strlen(buf) + 1);
-
 		buf = &(buf[i+1]);
 		i = 0;
 		while (buf[i] != '|' && i<strlen(buf)) i++;
 		buf[i] = '\0';
+		client_hosts[index] = (char*)malloc(strlen(buf) + 1);
 		strcpy(client_hosts[index], buf);
-
 		printw("%s\n", client_hosts[index]);
 		refresh();
 	}
