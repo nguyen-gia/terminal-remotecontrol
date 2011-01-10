@@ -59,6 +59,7 @@ int receive_connection_info(int client_socket, char *path, char* server_host, ch
 	//char *buf;
 	//buf = (char*)malloc(1000);
 	char bufs[1000];
+	bzero(bufs,sizeof(bufs));
 
 	i = read(client_socket, bufs, sizeof(bufs));
 	bufs[i] = '\0';
@@ -73,7 +74,6 @@ int receive_connection_info(int client_socket, char *path, char* server_host, ch
 	while (buf[i] != '|' && i<strlen(buf)) i++;
 	buf[i] = '\0';
 	strcpy(path, buf);
-
 	buf = &(buf[i+1]);
 	i = 0;
 	while (buf[i] != '|' && i<strlen(buf)) i++;
@@ -128,7 +128,7 @@ int run_client(int client_socket){
 	noecho();
 	i=read(client_socket,check,sizeof(check));
 	check[i]='\0';
-	printw("Read check\n");
+	//printw("Read check\n");
 	//printf("%s\n", check);
 	if(strcmp(check,"controller")==0)
 		j=2;
@@ -152,9 +152,9 @@ int run_client(int client_socket){
 	}
 }
 int run_ctrl_client(int client_socket, char* firstpath,char* client_hosts[],char * server_host){
-	char line[512];
+	//char line[512];
 	char ch;
-	char buffer[10000];
+	char buffer[1000];
 	char path[50];
 	int i;
 
@@ -218,9 +218,9 @@ int run_ctrl_client(int client_socket, char* firstpath,char* client_hosts[],char
 
 int run_normal_client(int client_socket,char* firstpath, char* client_hosts[], char* server_host)
 {
-	char line[512];
+	//char line[512];
 	char ch;
-	char buffer[10000];
+	char buffer[1000];
 	char path[50];
 	int i;
 
