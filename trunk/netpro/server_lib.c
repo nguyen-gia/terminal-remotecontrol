@@ -301,6 +301,7 @@ int run_server(int serv_socket){
 				else
 					write(newfd,"not",strlen("not")+1);
 				write(newfd, path, strlen(path));
+				clear();
 			}
 
 			if (i == ctrl_sock_fd){
@@ -312,10 +313,14 @@ int run_server(int serv_socket){
 			printInfo(server_host, client_hosts);
 			refresh();
 			if (i != serv_socket && i != ctrl_sock_fd){
-				printw("Socket %d has closed\n", i);
+				//printw("Socket %d has closed\n", i);
 				FD_CLR(i, &fds_init);
 				client_hosts[i] = NULL;
+				clear();
+				printInfo(server_host, client_hosts);
+				refresh();
 			}
+
 		}
 	}
 
