@@ -61,13 +61,13 @@ void printInfo(char *server_host, char* client_host[]){
 
 	height = 15;
 	width = 45;
-	starty = 0;
-	startx = COLS - width - 5;
+	starty = LINES-height;
+	startx = COLS - width;
 
 	my_win = create_newwin(height, width, starty, startx);
 	refresh();
 
-	mvwprintw(my_win, 1, 5, "Server: %s", server_host);
+	mvwprintw(my_win, 1, 1, "Server: %s", server_host);
 	for(i=0;i<12;i++)
 		if(client_host[i]!=NULL)
 			{
