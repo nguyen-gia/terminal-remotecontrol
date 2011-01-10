@@ -346,8 +346,9 @@ int run_server(int serv_socket){
 				write(newfd, path, strlen(path));
 
 				write(newfd, server_host, strlen(server_host));
+				//printw("wrote server host\n");
+				//send_client_hosts(client_hosts, newfd);
 
-				send_client_hosts(client_hosts, newfd);
 				//clear();
 			}
 			else
