@@ -167,7 +167,7 @@ void add_client_host(char *client_hosts[], int newfd, char* hostbuf){
 	strcpy(client_hosts[newfd], hostbuf);
 }
 
-int receive_and_run(int* ctrl_sock_fd, int serv_socket, int max_sock_fd, fd_set* fds_init_addr, char*path, char* client_hosts[])
+int receive_and_run(int* ctrl_sock_fd, int serv_socket, int max_sock_fd, fd_set* fds_init_addr, char*path, char* client_hosts[], int* mark)
 {
 	char cmd[512];
 	char res[10000];
@@ -186,6 +186,19 @@ int receive_and_run(int* ctrl_sock_fd, int serv_socket, int max_sock_fd, fd_set*
 	rtcargc=parse(cmd,rtcargv);
 
 	// in case of exit
+	if(*mark>0){
+			char info[60];
+			if(client_hosts[*mark]!=NULL)
+				sprintf(info,"%c%d|%s",'\2',*mark,client_hosts[*mark]);
+			else
+				sprintf(info,"%c%d|",'\2',*mark);
+			for (j=0; j<=max_sock_fd; j++)
+				if (j!=serv_socket && FD_ISSET(j, fds_init_addr)&& j!=*mark){
+					write(j,info,strlen(info));	// send to client to change current path on client side too
+					}
+			*mark=0;
+		}
+
 	if(strcmp(rtcargv[0],"exit")==0)
 	{
 		for (j=0; j<=max_sock_fd; j++)if (j!=serv_socket && FD_ISSET(j, fds_init_addr)){
@@ -289,6 +302,7 @@ int send_connection_info(int newfd, char *path, char *server_host, char *client_
 	printw("%s\n", info);
 
 	write(newfd, info, sizeof(info));
+	return 0;
 }
 
 
@@ -323,6 +337,7 @@ int run_server(int serv_socket){
 
 	int ctrl_sock_fd = -1; // socket descriptor value of the client which is controller
 	int max_sock_fd = serv_socket;	//max of socket descriptor values, used to iterator
+	int mark; //mark for new connection or one of connections exit
 
 	fd_set fds, fds_init;
 	FD_ZERO(&fds);
@@ -363,6 +378,7 @@ int run_server(int serv_socket){
 					write(newfd,"not",strlen("not")+1);
 
 				send_connection_info(newfd, path, server_host, client_hosts);
+				mark = newfd;
 
 				//write(newfd, path, strlen(path));
 
@@ -374,7 +390,7 @@ int run_server(int serv_socket){
 			}
 			else
 			if (i == ctrl_sock_fd){
-				int j = receive_and_run(&ctrl_sock_fd, serv_socket, max_sock_fd, &fds_init, path, client_hosts);
+				int j = receive_and_run(&ctrl_sock_fd, serv_socket, max_sock_fd, &fds_init, path, client_hosts, &mark);
 				if (j==1){
 					return 1;
 				}
@@ -384,6 +400,7 @@ int run_server(int serv_socket){
 				//printw("Socket %d has closed\n", i);
 				FD_CLR(i, &fds_init);
 				client_hosts[i] = NULL;
+				mark=i;
 				clear();
 				/*printInfo(server_host, client_hosts);
 				refresh();*/
