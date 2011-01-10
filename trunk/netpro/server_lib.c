@@ -254,6 +254,24 @@ int receive_and_run(int* ctrl_sock_fd, int serv_socket, int max_sock_fd, fd_set*
 	}
 }
 
+int send_client_hosts(char* client_hosts[], int newfd){
+	int i,num = 0;
+	for (i=0; i<12; i++) if (client_hosts[i] != NULL){
+		num++;
+	}
+	char index[3];
+	sprintf(index, "%d", num);
+	write(newfd, index, sizeof(index));
+
+	for (i=0; i<12; i++) if (client_hosts[i] != NULL){
+		sprintf(index, "%d", i);
+		write(newfd, index, sizeof(index));
+		write(newfd, client_hosts[i], sizeof(client_hosts[i]));
+	}
+
+	return 0;
+}
+
 
 /*
  * This function use select() to handle multi-client connection
@@ -324,7 +342,12 @@ int run_server(int serv_socket){
 				}
 				else
 					write(newfd,"not",strlen("not")+1);
+
 				write(newfd, path, strlen(path));
+
+				write(newfd, server_host, strlen(server_host));
+
+				send_client_hosts(client_hosts, newfd);
 				//clear();
 			}
 			else
