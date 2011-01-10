@@ -271,6 +271,25 @@ int send_client_hosts(char* client_hosts[], int newfd){
 
 	return 0;
 }
+int send_connection_info(int newfd, char *path, char *server_host, char *client_hosts[]){
+	char info[1000]="";
+	strcat(info, path);
+	strcat(info, "|");
+	strcat(info, server_host);
+	int i;
+	for (i=0;i<12;i++) if (client_hosts[i] != NULL){
+		char index[3];
+		sprintf(index, "%d", i);
+		strcat(info, "|");
+		strcat(info, index);
+		strcat(info, "|");
+		strcat(info, client_hosts[i]);
+	}
+
+	printw("%s\n", info);
+
+	write(newfd, info, sizeof(info));
+}
 
 
 /*
@@ -343,9 +362,11 @@ int run_server(int serv_socket){
 				else
 					write(newfd,"not",strlen("not")+1);
 
-				write(newfd, path, strlen(path));
+				send_connection_info(newfd, path, server_host, client_hosts);
 
-				write(newfd, server_host, strlen(server_host));
+				//write(newfd, path, strlen(path));
+
+				//write(newfd, server_host, strlen(server_host));
 				//printw("wrote server host\n");
 				//send_client_hosts(client_hosts, newfd);
 

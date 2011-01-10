@@ -68,6 +68,7 @@ void printInfo(char *server_host, char* client_host[]){
 	refresh();
 
 	mvwprintw(my_win, 1, 1, "Server: %s", server_host);
+	wrefresh();
 	for(i=0;i<12;i++)
 		if(client_host[i]!=NULL)
 			{

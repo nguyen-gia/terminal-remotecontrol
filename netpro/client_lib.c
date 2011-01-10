@@ -51,14 +51,65 @@ int create_client_socket(char* server_port_number, char *server_ip_address){
 
 	return s;
 }
+
+int receive_connection_info(int client_socket, char *path, char* server_host, char *client_hosts[]){
+	int i;
+	for (i=0; i<12; i++) client_hosts[i] = NULL;
+
+	//char *buf;
+	//buf = (char*)malloc(1000);
+	char bufs[1000];
+
+	i = read(client_socket, bufs, sizeof(bufs));
+	bufs[i] = '\0';
+
+	char *buf = bufs;
+
+	//
+	printw("%s\n", buf);
+	refresh();
+
+	i = 0;
+	while (buf[i] != '|' && i<strlen(buf)) i++;
+	buf[i] = '\0';
+	strcpy(path, buf);
+
+	buf = &(buf[i+1]);
+	i = 0;
+	while (buf[i] != '|' && i<strlen(buf)) i++;
+	buf[i] = '\0';
+	strcpy(server_host, buf);
+
+	//
+	printw("%s\n", server_host);
+	refresh();
+
+	while(1){
+		buf = &(buf[i+1]);
+		if (strlen(buf) == 0) break;
+		i = 0;
+		while (buf[i] != '|' && i<strlen(buf)) i++;
+		buf[i] = '\0';
+		int index = atoi(buf);
+
+		client_hosts[index] = (char*)malloc(strlen(buf) + 1);
+
+		buf = &(buf[i+1]);
+		i = 0;
+		while (buf[i] != '|' && i<strlen(buf)) i++;
+		buf[i] = '\0';
+		strcpy(client_hosts[index], buf);
+
+		printw("%s\n", client_hosts[index]);
+		refresh();
+	}
+
+}
+
 int run_client(int client_socket){
 	int i,j,count,k;
 	char check[15];
 	char buf[3];
-	char server_host[50];
-	char hostbuf[50];
-	char firstpath[50];
-	char* client_hosts[12];
 	initscr();
 	noecho();
 	i=read(client_socket,check,sizeof(check));
@@ -69,13 +120,21 @@ int run_client(int client_socket){
 		j=2;
 	else
 		j=3;
-	i=read(client_socket,firstpath,sizeof(firstpath));
+
+	char firstpath[50];
+	char server_host[50];
+	char *client_hosts[12];
+
+	receive_connection_info(client_socket, firstpath, server_host, client_hosts);
+
+
+	/*i=read(client_socket,firstpath,sizeof(firstpath));
 	firstpath[i]='\0';
 	printw("Read path\n");
 
 	i=read(client_socket,server_host,sizeof(server_host));
 	server_host[i]='\0';
-	printw("read server host\n");
+	printw("read server host\n");*/
 
 	/*i=read(client_socket,buf,sizeof(buf));
 	buf[i]='\0';
@@ -97,7 +156,6 @@ int run_client(int client_socket){
 			j=run_ctrl_client(client_socket, firstpath, client_hosts, server_host);
 		else
 			j=run_normal_client(client_socket, firstpath, client_hosts, server_host);
-
 	}
 }
 int run_ctrl_client(int client_socket, char* firstpath,char* clients_hosts[],char * server_host){
@@ -110,7 +168,7 @@ int run_ctrl_client(int client_socket, char* firstpath,char* clients_hosts[],cha
 	printw("You are controller\n");
 	strcpy(path,firstpath);
 	printw("%s@ ",path);
-	//printInfo(server_host,clients_hosts);
+	printInfo(server_host,clients_hosts);
 	refresh();
 	while (ch = getch()) {
 		write(client_socket, &ch, 1);
@@ -154,7 +212,7 @@ int run_ctrl_client(int client_socket, char* firstpath,char* clients_hosts[],cha
 				}
 			}
 			printw("%s@ ",path);
-			//printInfo(server_host,clients_hosts);
+			printInfo(server_host,clients_hosts);
 			refresh();
 		}
 	}
@@ -172,7 +230,7 @@ int run_normal_client(int client_socket,char* firstpath, char* clients_hosts[], 
 	printw("You are normal client\n");
 	strcpy(path,firstpath);
 	printw("%s@ ",path);
-	//printInfo(server_host,clients_hosts);
+	printInfo(server_host,clients_hosts);
 	refresh();
 
 	while (1) {
@@ -219,7 +277,7 @@ int run_normal_client(int client_socket,char* firstpath, char* clients_hosts[], 
 					}
 			}
 			printw("%s@ ",path);
-			//printInfo(server_host,clients_hosts);
+			printInfo(server_host,clients_hosts);
 			refresh();
 		}
 	}
