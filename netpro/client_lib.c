@@ -278,7 +278,7 @@ int run_normal_client(int client_socket,char* firstpath, char* client_hosts[], c
 					}
 			}
 			printw("%s@ ",path);
-			printInfo(server_host,client_hosts);
+			//printInfo(server_host,clients_hosts);
 			refresh();
 			bzero(buffer,sizeof(buffer));
 		}
