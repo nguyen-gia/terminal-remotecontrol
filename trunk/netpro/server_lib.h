@@ -30,4 +30,8 @@ int create_server_socket(char *port_number);
 int receive_command_name(char* cmd, int i32ConnectFD, fd_set*init, int maxfd, int serv_socket);
 int get_command_result(char *res, char *cmd);
 int send_command_result(char *result, int i32ConnectFD);
+int parse(char *cmd, char *rtcargv[]);
+int acceptNewConnect(int serv_socket, char *hostbuf);
+void add_client_host(char *client_hosts[], int newfd, char* hostbuf);
+int run_server(int serv_socket);
 

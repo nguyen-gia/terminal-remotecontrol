@@ -142,7 +142,6 @@ int run_normal_client(int client_socket)
 	if (ch == '\n') {
 		clear();
 		buffer[0] = '\0';
-		//printw("\n");
 		refresh();
 		i = read(client_socket, buffer, sizeof(buffer));
 
