@@ -167,6 +167,70 @@ void add_client_host(char *client_hosts[], int newfd, char* hostbuf){
 	strcpy(client_hosts[newfd], hostbuf);
 }
 
+int receive_and_run(int ctrl_sock_fd, int serv_socket, int max_sock_fd, fd_set* fds_init_addr, char*path){
+	char cmd[512];
+	char res[10000];
+	cmd[0] = '\0';
+	res[0] = '\0';
+	char ncmd[512];
+	char* rtcargv[16];
+	int rtcargc;
+	int j;
+
+	// receive and display each character from client and combine into one command
+	receive_command_name(cmd, ctrl_sock_fd, fds_init_addr, max_sock_fd, serv_socket);
+	clear();
+
+	// split cmd into array of command name and arguments
+	rtcargc=parse(cmd,rtcargv);
+
+	// in case of exit
+	if(strcmp(rtcargv[0],"exit")==0)
+	{
+		for (j=0; j<=max_sock_fd; j++)if (j!=serv_socket && FD_ISSET(j, fds_init_addr)){
+			write(j,"exit",4);
+		}
+		close(ctrl_sock_fd);
+		endwin();
+		return 1;
+	}
+
+	if(strcmp(rtcargv[0],"cd")!=0)
+	{
+		// execute normal command
+		strcpy(ncmd,rtcargv[0]);
+		for(j=1;j<rtcargc;j++)
+		{
+			strcat(ncmd," ");
+			strcat(ncmd,rtcargv[j]);
+		}
+
+		// execute and store the result as a string 'res'
+		get_command_result(res, ncmd);
+
+		// print the result if exist
+		if(res[0]!='\n') printw("%s\n", res);
+		refresh();
+
+		// then send the result to client via socket in order to display on client side
+		for (j=0; j<=max_sock_fd; j++)if (j!=serv_socket && FD_ISSET(j, fds_init_addr)){
+			send_command_result(res, j);
+		}
+	}
+	else
+	{	//in case of 'cd' command
+		chdir(rtcargv[1]);			// execute the change dir
+		getcwd(path, 50); // get current path
+		strcat(path,"\1");			// mark the string 'path' before send to client
+
+		for (j=0; j<=max_sock_fd; j++)if (j!=serv_socket && FD_ISSET(j, fds_init_addr)){
+			write(j,path,strlen(path));	// send to client to change current path on client side too
+		}
+		path[strlen(path)-1]='\0';	// remove the mark
+	}
+
+	return 0;
+}
 
 /*
  * This function use select() to handle multi-client connection
@@ -206,8 +270,6 @@ int run_server(int serv_socket){
 	FD_SET(serv_socket, &fds_init);
 
 	while(1){
-
-
 		if (max_sock_fd != serv_socket){
 			printw("%s@ ",path);	// print the current path before each command is typed
 			refresh();
@@ -242,67 +304,10 @@ int run_server(int serv_socket){
 			}
 
 			if (i == ctrl_sock_fd){
-				char cmd[512];
-				char res[10000];
-				cmd[0] = '\0';
-				res[0] = '\0';
-				char ncmd[512];
-				char* rtcargv[16];
-				int rtcargc;
-				int j;
-
-				// receive and display each character from client and combine into one command
-				receive_command_name(cmd, i, &fds_init, max_sock_fd, serv_socket);
-				clear();
-
-				// split cmd into array of command name and arguments
-				rtcargc=parse(cmd,rtcargv);
-
-				// in case of exit
-				if(strcmp(rtcargv[0],"exit")==0)
-				{
-					for (j=0; j<=max_sock_fd; j++)if (j!=serv_socket && FD_ISSET(j, &fds_init)){
-						write(j,"exit",4);
-					}
-					close(i);
-					endwin();
+				int j = receive_and_run(i, serv_socket, max_sock_fd, &fds_init, path);
+				if (j==1){
 					return 1;
 				}
-
-				if(strcmp(rtcargv[0],"cd")!=0)
-				{
-					// execute normal command
-					strcpy(ncmd,rtcargv[0]);
-					for(j=1;j<rtcargc;j++)
-					{
-						strcat(ncmd," ");
-						strcat(ncmd,rtcargv[j]);
-					}
-
-					// execute and store the result as a string 'res'
-					get_command_result(res, ncmd);
-
-					// print the result if exist
-					if(res[0]!='\n') printw("%s\n", res);
-					refresh();
-
-					// then send the result to client via socket in order to display on client side
-					for (j=0; j<=max_sock_fd; j++)if (j!=serv_socket && FD_ISSET(j, &fds_init)){
-						send_command_result(res, j);
-					}
-				}
-				else
-				{	//in case of 'cd' command
-					chdir(rtcargv[1]);			// execute the change dir
-					getcwd(path, sizeof(path)); // get current path
-					strcat(path,"\1");			// mark the string 'path' before send to client
-
-					for (j=0; j<=max_sock_fd; j++)if (j!=serv_socket && FD_ISSET(i, &fds_init)){
-						write(j,path,strlen(path));	// send to client to change current path on client side too
-					}
-					path[strlen(path)-1]='\0';	// remove the mark
-				}
-
 			}
 			printInfo(server_host, client_hosts);
 			refresh();
