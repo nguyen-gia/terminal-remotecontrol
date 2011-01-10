@@ -63,6 +63,7 @@ int run_client(int client_socket){
 	noecho();
 	i=read(client_socket,check,sizeof(check));
 	check[i]='\0';
+	printw("Read check\n");
 	//printf("%s\n", check);
 	if(strcmp(check,"controller")==0)
 		j=2;
@@ -70,11 +71,16 @@ int run_client(int client_socket){
 		j=3;
 	i=read(client_socket,firstpath,sizeof(firstpath));
 	firstpath[i]='\0';
-	i=read(client_socket,server_hosts,sizeof(server_hosts));
-	server_hosts[i]='\0';
-	i=read(client_socket,buf,sizeof(buf));
+	printw("Read path\n");
+
+	i=read(client_socket,server_host,sizeof(server_host));
+	server_host[i]='\0';
+	printw("read server host\n");
+
+	/*i=read(client_socket,buf,sizeof(buf));
 	buf[i]='\0';
 	count=atoi(buf);
+	printw("read count = %d\n",count);
 	for(k=0;k<count;k++)
 	{
 		i=read(client_socket,buf,sizeof(buf));
@@ -83,7 +89,7 @@ int run_client(int client_socket){
 		hostbuf[i]='\0';
 		client_hosts[atoi(buf)]=(char*)malloc(strlen(hostbuf)+1);
 		strcpy(client_hosts[atoi(buf)],hostbuf);
-	}
+	}*/
 	while(1)
 	{
 		if(j==1) return 1;
@@ -104,7 +110,7 @@ int run_ctrl_client(int client_socket, char* firstpath,char* clients_hosts[],cha
 	printw("You are controller\n");
 	strcpy(path,firstpath);
 	printw("%s@ ",path);
-	printInfo(server_host,clients_hosts);
+	//printInfo(server_host,clients_hosts);
 	refresh();
 	while (ch = getch()) {
 		write(client_socket, &ch, 1);
@@ -148,7 +154,7 @@ int run_ctrl_client(int client_socket, char* firstpath,char* clients_hosts[],cha
 				}
 			}
 			printw("%s@ ",path);
-			printInfo(server_host,clients_hosts);
+			//printInfo(server_host,clients_hosts);
 			refresh();
 		}
 	}
@@ -166,7 +172,7 @@ int run_normal_client(int client_socket,char* firstpath, char* clients_hosts[], 
 	printw("You are normal client\n");
 	strcpy(path,firstpath);
 	printw("%s@ ",path);
-	printInfo(server_host,clients_hosts);
+	//printInfo(server_host,clients_hosts);
 	refresh();
 
 	while (1) {
@@ -213,7 +219,7 @@ int run_normal_client(int client_socket,char* firstpath, char* clients_hosts[], 
 					}
 			}
 			printw("%s@ ",path);
-			printInfo(server_host,clients_hosts);
+			//printInfo(server_host,clients_hosts);
 			refresh();
 		}
 	}
