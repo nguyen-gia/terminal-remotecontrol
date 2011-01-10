@@ -52,9 +52,13 @@ int create_client_socket(char* server_port_number, char *server_ip_address){
 	return s;
 }
 int run_client(int client_socket){
-	int i,j,k;
+	int i,j,count,k;
 	char check[15];
+	char buf[3];
+	char server_host[50];
+	char hostbuf[50];
 	char firstpath[50];
+	char* client_hosts[12];
 	initscr();
 	noecho();
 	i=read(client_socket,check,sizeof(check));
@@ -66,17 +70,31 @@ int run_client(int client_socket){
 		j=3;
 	i=read(client_socket,firstpath,sizeof(firstpath));
 	firstpath[i]='\0';
+	i=read(client_socket,server_hosts,sizeof(server_hosts));
+	server_hosts[i]='\0';
+	i=read(client_socket,buf,sizeof(buf));
+	buf[i]='\0';
+	count=atoi(buf);
+	for(k=0;k<count;k++)
+	{
+		i=read(client_socket,buf,sizeof(buf));
+		buf[i]='\0';
+		i=read(client_socket,hostbuf,sizeof(hostbuf));
+		hostbuf[i]='\0';
+		client_hosts[atoi(buf)]=(char*)malloc(strlen(hostbuf)+1);
+		strcpy(client_hosts[atoi(buf)],hostbuf);
+	}
 	while(1)
 	{
 		if(j==1) return 1;
 		if(j==2)
-			j=run_ctrl_client(client_socket,firstpath);
+			j=run_ctrl_client(client_socket, firstpath, client_hosts, server_host);
 		else
-			j=run_normal_client(client_socket,firstpath);
+			j=run_normal_client(client_socket, firstpath, client_hosts, server_host);
 
 	}
 }
-int run_ctrl_client(int client_socket, char* firstpath){
+int run_ctrl_client(int client_socket, char* firstpath,char* clients_hosts[],char * server_host){
 	char line[512];
 	char ch;
 	char buffer[10000];
@@ -86,6 +104,7 @@ int run_ctrl_client(int client_socket, char* firstpath){
 	printw("You are controller\n");
 	strcpy(path,firstpath);
 	printw("%s@ ",path);
+	printInfo(server_host,clients_hosts);
 	refresh();
 	while (ch = getch()) {
 		write(client_socket, &ch, 1);
@@ -129,13 +148,14 @@ int run_ctrl_client(int client_socket, char* firstpath){
 				}
 			}
 			printw("%s@ ",path);
+			printInfo(server_host,clients_hosts);
 			refresh();
 		}
 	}
 	endwin();
 }
 
-int run_normal_client(int client_socket,char* firstpath)
+int run_normal_client(int client_socket,char* firstpath, char* clients_hosts[], char* server_host)
 {
 	char line[512];
 	char ch;
@@ -146,6 +166,7 @@ int run_normal_client(int client_socket,char* firstpath)
 	printw("You are normal client\n");
 	strcpy(path,firstpath);
 	printw("%s@ ",path);
+	printInfo(server_host,clients_hosts);
 	refresh();
 
 	while (1) {
@@ -192,6 +213,7 @@ int run_normal_client(int client_socket,char* firstpath)
 					}
 			}
 			printw("%s@ ",path);
+			printInfo(server_host,clients_hosts);
 			refresh();
 		}
 	}
