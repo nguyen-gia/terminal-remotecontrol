@@ -60,7 +60,7 @@ void printInfo(char *server_host, char* client_host[]){
 	//keypad(stdscr, TRUE);		/* I need that nifty F1 	*/
 
 	height = 15;
-	width = 30;
+	width = 45;
 	starty = 0;
 	startx = COLS - width - 5;
 

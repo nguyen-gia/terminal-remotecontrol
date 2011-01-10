@@ -13,8 +13,6 @@ int create_server_socket(char *port_number){
 	struct addrinfo hints, *ai0, *ai;
 	int gai;
 	int s;
-	int i;
-	int on = 1;
 
 	port = port_number;
 	host = NULL;
@@ -39,28 +37,11 @@ int create_server_socket(char *port_number){
 	/* create a socket to accept connection from clients */
 	s = -1;
 	for (ai = ai0; ai; ai = ai->ai_next) {
-		//int s;
-		//printf("s = %d\n", s);
 
 		/* create a socket */
 		s = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
 		if (s == -1)
 			continue;
-
-#ifdef IPV6_V6ONLY
-		/*
-		 * Try to set IPV6_V6ONLY; since some systems (e.g. old
-		 * Linux) do not support IPV6_V6ONLY, just ignore the error
-		 * here.
-		 */
-		if (ai->ai_family == AF_INET6 &&
-		    setsockopt(s,
-			       IPPROTO_IPV6, IPV6_V6ONLY,
-			       &on, sizeof(on)) == -1) {
-			perror("setsockopt(IPV6_V6ONLY)");
-			/* fall through */
-		}
-#endif
 
 		/* bind the socket to the local port */
 		if (bind(s, ai->ai_addr, ai->ai_addrlen) == -1) {
@@ -117,9 +98,6 @@ int get_command_result(char *res, char *cmd){
 		refresh();
 		return -1;
 	}
-
-	//printw("%s", cmd);
-	//refresh();
 
 	int k = 0;
 	char line[512];
@@ -179,7 +157,8 @@ int acceptNewConnect(int serv_socket, char *hostbuf){
 			break;
 	}
 
-	int gni = getnameinfo((struct sockaddr *)&ss, sslen, hostbuf, 256,NULL, 0,NI_NUMERICHOST);
+	/*int gni = */
+	getnameinfo((struct sockaddr *)&ss, sslen, hostbuf, 256,NULL, 0,NI_NUMERICHOST);
 	return i32ConnectFD;
 }
 
@@ -195,13 +174,14 @@ void add_client_host(char *client_hosts[], int newfd, char* hostbuf){
  * Return value:
  */
 int run_server(int serv_socket){
+	//Init ncurses screen
+
 	initscr();
-	//noecho();
 	printw("Listening...\n");
-		refresh();
-	char path[50];
+	refresh();
 
 	// get the current path
+	char path[50];
 	getcwd(path, sizeof(path));
 
 	// get localhost name
@@ -233,10 +213,10 @@ int run_server(int serv_socket){
 			refresh();
 		}
 
-		fds = fds_init;									//
+		fds = fds_init;
 
 		// wait for clients
-		if (select(max_sock_fd + 1, &fds, NULL, NULL, NULL) == -1) {					//	****
+		if (select(max_sock_fd + 1, &fds, NULL, NULL, NULL) == -1) {
 			perror("select");
 			continue;
 		}
@@ -248,7 +228,6 @@ int run_server(int serv_socket){
 				//accept new connect and get the client host
 				char hostbuf[NI_MAXHOST];
 				int newfd = acceptNewConnect(serv_socket, hostbuf);
-				//printw("\nNew accept from %s\n", hostbuf);
 
 				add_client_host(client_hosts, newfd, hostbuf);
 				FD_SET(newfd, &fds_init);
@@ -261,6 +240,7 @@ int run_server(int serv_socket){
 					write(newfd,"not",strlen("not")+1);
 				write(newfd, path, strlen(path));
 			}
+
 			if (i == ctrl_sock_fd){
 				char cmd[512];
 				char res[10000];
@@ -290,8 +270,8 @@ int run_server(int serv_socket){
 				}
 
 				if(strcmp(rtcargv[0],"cd")!=0)
-				{	// execute normal command
-					//doan nay la lua thay, he he
+				{
+					// execute normal command
 					strcpy(ncmd,rtcargv[0]);
 					for(j=1;j<rtcargc;j++)
 					{

@@ -21,3 +21,4 @@
 int create_client_socket(char* server_port_number, char *server_ip_address);
 int send_command_character(int ch, int i32ConnectFD);
 int recieve_command_result(char *result, int i32ConnectFD);
+//int get_command_result(char *res, char *cmd);
