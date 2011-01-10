@@ -299,9 +299,9 @@ int send_connection_info(int newfd, char *path, char *server_host, char *client_
 		strcat(info, client_hosts[i]);
 	}
 
-	printw("%s\n", info);
+	//printw("%s\n", info);
 
-	write(newfd, info, sizeof(info));
+	write(newfd, info, strlen(info));
 	return 0;
 }
 
