@@ -152,7 +152,7 @@ int run_ctrl_client(int client_socket, char* path,char* client_hosts[],char * se
 	int i;
 
 	printw("You are controller\n");
-	strcpy(path,firstpath);
+	//strcpy(path,firstpath);
 	printw("%s@ ",path);
 	//Print Information about connecting client
 	printInfo(server_host,client_hosts);
@@ -227,7 +227,7 @@ int run_normal_client(int client_socket,char* path, char* client_hosts[], char* 
 	int i;
 
 	printw("You are normal client\n");
-	strcpy(path,firstpath);
+	//strcpy(path,firstpath);
 	printw("%s@ ",path);
 	printInfo(server_host,client_hosts);
 	refresh();
