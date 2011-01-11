@@ -145,10 +145,10 @@ int run_client(int client_socket){
 			j=run_normal_client(client_socket, firstpath, client_hosts, server_host);
 	}
 }
-int run_ctrl_client(int client_socket, char* firstpath,char* client_hosts[],char * server_host){
+int run_ctrl_client(int client_socket, char* path,char* client_hosts[],char * server_host){
 	char ch;
 	char buffer[1000];
-	char path[50];
+	//char path[50];
 	int i;
 
 	printw("You are controller\n");
@@ -218,12 +218,12 @@ int run_ctrl_client(int client_socket, char* firstpath,char* client_hosts[],char
 	endwin();
 }
 
-int run_normal_client(int client_socket,char* firstpath, char* client_hosts[], char* server_host)
+int run_normal_client(int client_socket,char* path, char* client_hosts[], char* server_host)
 {
 	//char line[512];
 	char ch;
 	char buffer[1000];
-	char path[50];
+	//char path[50];
 	int i;
 
 	printw("You are normal client\n");
