@@ -71,7 +71,7 @@ void printInfo(char *server_host, char* client_host[]){
 	my_win = create_newwin(height, width, starty, startx);
 	mvwprintw(my_win, 1, 1, "Server: %s", server_host);
 	wrefresh(my_win);
-	int i, row=1;
+	int i, row=2;
 
 	for(i=0;i<12;i++)
 		if(client_host[i]!=NULL)
