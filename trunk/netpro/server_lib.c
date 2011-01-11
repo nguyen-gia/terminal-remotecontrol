@@ -69,6 +69,7 @@ int receive_command_name(char* cmd, int i32ConnectFD, fd_set*init, int maxfd, in
 	char ch;
 	int count = 0;
 	cmd[0] = '\0';
+	//Read sequently characters of command and send to normal client
 	while(1){
 		read(i32ConnectFD, &ch, 1);
 		if (ch == 127){
@@ -79,6 +80,7 @@ int receive_command_name(char* cmd, int i32ConnectFD, fd_set*init, int maxfd, in
 			printw("%c", ch);
 			cmd[count++] = ch;
 		}
+		//Send to normal client
 		int i;
 		for (i=0; i<=maxfd; i++) if (i!=serv_socket && i!=i32ConnectFD && FD_ISSET(i, init)){
 			write(i, &ch, 1);
@@ -93,6 +95,7 @@ int receive_command_name(char* cmd, int i32ConnectFD, fd_set*init, int maxfd, in
 
 int get_command_result(char *res, char *cmd){
 	FILE *fp = NULL;
+	//Execute command and get result in file fp
 	if ((fp = popen(cmd, "r")) == NULL) {
 		printw("Error when execute this command\n");
 		refresh();
@@ -102,6 +105,7 @@ int get_command_result(char *res, char *cmd){
 	int k = 0;
 	char line[512];
 
+	//Add content of result file to one buffer
 	while (fgets(line, sizeof(line), fp) != NULL) {
 		if (k == 0) {
 			sprintf(res, "%s", line);
@@ -117,6 +121,7 @@ int get_command_result(char *res, char *cmd){
 }
 
 int send_command_result(char *res, int i32ConnectFD){
+	//Send command result to client ( both of controller and normal)
 	if(res[0]!='\0'){
 		write(i32ConnectFD, res, strlen(res));
 		return 0;
@@ -127,24 +132,26 @@ int send_command_result(char *res, int i32ConnectFD){
 	}
 }
 
+//parse command to array of parameter
 int parse(char *cmd, char *rtcargv[])
 {
-  int rtcargc;
-  rtcargc = 0;
-  while(*cmd&& *cmd<=' ')*cmd++='\0';
-  while(*cmd)
-    {
-      rtcargv[rtcargc++] = cmd;
-      while(*cmd && *cmd>' ') cmd++;
-      while(*cmd && *cmd<=' ')
-	*cmd++ = '\0';
-    }
-  rtcargv[rtcargc]= NULL;
-  if(rtcargc==0) rtcargv[0]=" ";
-  return rtcargc;
+	int rtcargc;
+	rtcargc = 0;
+	while(*cmd&& *cmd<=' ')*cmd++='\0';
+	while(*cmd)
+		{
+		rtcargv[rtcargc++] = cmd;
+		while(*cmd && *cmd>' ') cmd++;
+		while(*cmd && *cmd<=' ')
+			*cmd++ = '\0';
+		}
+	rtcargv[rtcargc]= NULL;
+	if(rtcargc==0) rtcargv[0]=" ";
+	return rtcargc;
 }
 
 int acceptNewConnect(int serv_socket, char *hostbuf){
+	//This function is used to accept connect request from client and get client hostname
 	int i32ConnectFD;
 	struct sockaddr_storage ss;
 	socklen_t sslen = sizeof(struct sockaddr_storage);
@@ -163,12 +170,14 @@ int acceptNewConnect(int serv_socket, char *hostbuf){
 }
 
 void add_client_host(char *client_hosts[], int newfd, char* hostbuf){
+	//This function is used to add client hostname to an array to print out information about connection
 	client_hosts[newfd] = (char*)malloc(strlen(hostbuf) + 1);
 	strcpy(client_hosts[newfd], hostbuf);
 }
 
 int receive_and_run(int* ctrl_sock_fd, int serv_socket, int max_sock_fd, fd_set* fds_init_addr, char*path, char* client_hosts[], int* mark)
 {
+	//Receive command and execute, send to client
 	char cmd[512];
 	char res[10000];
 	cmd[0] = '\0';
@@ -185,7 +194,7 @@ int receive_and_run(int* ctrl_sock_fd, int serv_socket, int max_sock_fd, fd_set*
 	// split cmd into array of command name and arguments
 	rtcargc=parse(cmd,rtcargv);
 
-	// in case of exit
+	//In case of there is an update of connection
 	if(*mark>0){
 			char info[60];
 			if(client_hosts[*mark]!=NULL)
@@ -194,11 +203,11 @@ int receive_and_run(int* ctrl_sock_fd, int serv_socket, int max_sock_fd, fd_set*
 				sprintf(info,"%c%d|",'\2',*mark);
 			for (j=0; j<=max_sock_fd; j++)
 				if (j!=serv_socket && FD_ISSET(j, fds_init_addr)&& j!=*mark){
-					write(j,info,strlen(info));	// send to client to change current path on client side too
+					write(j,info,strlen(info));
 					}
 			*mark=0;
 		}
-
+	// in case of exit
 	if(strcmp(rtcargv[0],"exit")==0)
 	{
 		for (j=0; j<=max_sock_fd; j++)if (j!=serv_socket && FD_ISSET(j, fds_init_addr)){
@@ -208,6 +217,7 @@ int receive_and_run(int* ctrl_sock_fd, int serv_socket, int max_sock_fd, fd_set*
 		endwin();
 		return 1;
 	}
+	//in case of change controller permision
 	if(strcmp(rtcargv[0],"change")==0)
 	{
 		int i,count=0;
@@ -268,6 +278,7 @@ int receive_and_run(int* ctrl_sock_fd, int serv_socket, int max_sock_fd, fd_set*
 }
 
 int send_client_hosts(char* client_hosts[], int newfd){
+	//This function is used to send connection information to new connection
 	int i,num = 0;
 	for (i=0; i<12; i++) if (client_hosts[i] != NULL){
 		num++;
@@ -285,6 +296,7 @@ int send_client_hosts(char* client_hosts[], int newfd){
 	return 0;
 }
 int send_connection_info(int newfd, char *path, char *server_host, char *client_hosts[]){
+	//This function is used to send connection information to old connection
 	char info[1000]="";
 	strcat(info, path);
 	strcat(info, "|");
