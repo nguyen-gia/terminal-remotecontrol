@@ -53,36 +53,31 @@ int create_client_socket(char* server_port_number, char *server_ip_address){
 }
 
 int receive_connection_info(int client_socket, char *path, char* server_host, char *client_hosts[]){
+	//This function is used to reveive connected client infomation when this client connect
 	int i;
 	for (i=0; i<12; i++) client_hosts[i] = NULL;
-
-	//char *buf;
-	//buf = (char*)malloc(1000);
 	char bufs[500];
 	bzero(bufs,sizeof(bufs));
 
-	i = read(client_socket, bufs, sizeof(bufs));
+	i = read(client_socket, bufs, sizeof(bufs));//This bufs contain path,server hostname and client hostname
 	bufs[i] = '\0';
 
 	char*buf =bufs;
-	//
-	printw("%s\n", buf);
-	refresh();
 
+	//parse path from buf
 	i = 0;
 	while (buf[i] != '|' && i<strlen(buf)) i++;
 	buf[i] = '\0';
 	strcpy(path, buf);
+
+	//parse server hostname from buf
 	buf = &(buf[i+1]);
 	i = 0;
 	while (buf[i] != '|' && i<strlen(buf)) i++;
 	buf[i] = '\0';
 	strcpy(server_host, buf);
 
-	//
-	printw("%s\n", server_host);
-	refresh();
-
+	//parse client hostname and connectFD of that client from buf
 	while(1){
 		buf = &(buf[i+1]);
 		if (strlen(buf) == 0) break;
@@ -103,6 +98,8 @@ int receive_connection_info(int client_socket, char *path, char* server_host, ch
 
 }
 int receive_connection_update(char* buffer,char* client_hosts[]){
+	//This function is used to receive update of connected client information when a new connection has established
+	//or one of exist connection has broken
 	int num,i=0;
 	buffer = &(buffer[1]);
 	while(buffer[i]!='|' && i<strlen(buffer)) i++;
@@ -125,8 +122,8 @@ int run_client(int client_socket){
 	noecho();
 	i=read(client_socket,check,sizeof(check));
 	check[i]='\0';
-	//printw("Read check\n");
-	//printf("%s\n", check);
+
+	//Check controller client or normal client
 	if(strcmp(check,"controller")==0)
 		j=2;
 	else
@@ -135,7 +132,7 @@ int run_client(int client_socket){
 	char firstpath[50];
 	char server_host[50];
 	char *client_hosts[12];
-
+	//receive connection information
 	receive_connection_info(client_socket, firstpath, server_host, client_hosts);
 
 
@@ -149,7 +146,6 @@ int run_client(int client_socket){
 	}
 }
 int run_ctrl_client(int client_socket, char* firstpath,char* client_hosts[],char * server_host){
-	//char line[512];
 	char ch;
 	char buffer[1000];
 	char path[50];
@@ -158,8 +154,10 @@ int run_ctrl_client(int client_socket, char* firstpath,char* client_hosts[],char
 	printw("You are controller\n");
 	strcpy(path,firstpath);
 	printw("%s@ ",path);
+	//Print Information about connecting client
 	printInfo(server_host,client_hosts);
 	refresh();
+	//Typing command
 	while (ch = getch()) {
 		write(client_socket, &ch, 1);
 		if (ch == 127){
@@ -167,19 +165,23 @@ int run_ctrl_client(int client_socket, char* firstpath,char* client_hosts[],char
 		}
 		else addch(ch);
 		refresh();
-
+		//End of typing command
 		if (ch == '\n') {
 			clear();
 			buffer[0] = '\0';
 			//printw("\n");
 			refresh();
+			//Read result from server
 			i = read(client_socket, buffer, sizeof(buffer));
+			//In case that there is update of connection (new or break)
 			if(buffer[0]=='\2'){
 				receive_connection_update(buffer,client_hosts);
+				//After receive connection information, read result
 				i = read(client_socket, buffer, sizeof(buffer));
 			}
 			if (buffer[0] != '\n') {
 				buffer[i] = '\0';
+				//Exit command
 				if(strcmp(buffer,"exit")==0)
 				{
 					endwin();
@@ -187,10 +189,12 @@ int run_ctrl_client(int client_socket, char* firstpath,char* client_hosts[],char
 				}
 				else
 				{
+					//Change controller permision command, turn back to normal client
 					if(strcmp(buffer,"changed")==0)
 						return 3;
 					else
 					{
+						//Change directory command
 						if(buffer[strlen(buffer)-1]=='\1')
 						{
 							buffer[strlen(buffer)-1]='\0';
@@ -198,6 +202,7 @@ int run_ctrl_client(int client_socket, char* firstpath,char* client_hosts[],char
 						}
 						else
 						{
+							//Another command
 							printw("%s\n", buffer);
 							refresh();
 						}
@@ -227,6 +232,7 @@ int run_normal_client(int client_socket,char* firstpath, char* client_hosts[], c
 	printInfo(server_host,client_hosts);
 	refresh();
 
+	//Get the command that controller is typing
 	while (1) {
 		read(client_socket, &ch, 1);
 		if (ch == 127){
@@ -235,18 +241,20 @@ int run_normal_client(int client_socket,char* firstpath, char* client_hosts[], c
 	else addch(ch);
 	refresh();
 
+	//End of command
 	if (ch == '\n') {
 		clear();
 		buffer[0] = '\0';
 		refresh();
 		i = read(client_socket, buffer, sizeof(buffer));
-
+			//There are update of connection
 			if(buffer[0]=='\2'){
 						receive_connection_update(buffer,client_hosts);
 						i = read(client_socket, buffer, sizeof(buffer));
 			}
 			if (buffer[0] != '\n') {
 				buffer[i] = '\0';
+				//Exit command
 				if(strcmp(buffer,"exit")==0)
 				{
 					endwin();
@@ -254,13 +262,16 @@ int run_normal_client(int client_socket,char* firstpath, char* client_hosts[], c
 				}
 				else
 				{
+					//Change controller permision command
 					if(strcmp(buffer,"changed")==0)
 						printw("Control permision has changed\n");
 					else
 						{
+						//If this client has controller permision
 						if(strcmp(buffer,"controller")==0)
 							return 2;
 						else
+							//Change directory command
 							if(buffer[strlen(buffer)-1]=='\1')
 							{
 								buffer[strlen(buffer)-1]='\0';
@@ -268,6 +279,7 @@ int run_normal_client(int client_socket,char* firstpath, char* client_hosts[], c
 							}
 							else
 							{
+								//Another command
 								printw("%s\n", buffer);
 								refresh();
 							}
