@@ -64,7 +64,7 @@ void printInfo(char *server_host, char* client_host[]){
 	int startx, starty, width, height;
 
 	height = 15;
-	width = 30;
+	width = 45;
 	starty = LINES-height;
 	startx = COLS - width;
 
