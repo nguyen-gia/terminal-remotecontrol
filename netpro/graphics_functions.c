@@ -7,7 +7,6 @@
 
 #include <ncurses.h>
 
-//Copy from...
 WINDOW *create_newwin(int height, int width, int starty, int startx)
 {	WINDOW *local_win;
 
@@ -42,9 +41,15 @@ void destroy_win(WINDOW *local_win)
 	delwin(local_win);
 }
 
+//Typically in ncurses environment, backspace is also realized as normal key press
+//We must rewrite a function that allow we turn back each time we typed wrong
 void backspace(){
 	int x,y;
+
+	//get x,y coodinator on screen
 	getyx(stdscr, y, x);
+
+	//move back a character and put a white space on it
 	if (x>0){
 		move(y, x-1);
 		addch(' ');
@@ -52,11 +57,11 @@ void backspace(){
 	}
 }
 
+
+//printInfo() : Print information about server and connected host
 void printInfo(char *server_host, char* client_host[]){
 	WINDOW *my_win;
 	int startx, starty, width, height;
-	int i=0,row=2;
-	//keypad(stdscr, TRUE);		/* I need that nifty F1 	*/
 
 	height = 15;
 	width = 30;
@@ -64,17 +69,8 @@ void printInfo(char *server_host, char* client_host[]){
 	startx = COLS - width;
 
 	my_win = create_newwin(height, width, starty, startx);
-	//refresh();
-	//mvprintw(10,10, "printInfo %d %d\n", startx, starty);
-
-	//mvprintw(startx + 1, starty + 1, "Server: %s", server_host);
-	//start_color();			/* Start color 			*/
-	//init_pair(1, COLOR_RED, COLOR_BLACK);
-
-	//attron(COLOR_PAIR(1));
 	mvwprintw(my_win, 1, 1, "Server: %s", server_host);
 	wrefresh(my_win);
-	//attroff(COLOR_PAIR(1));
 
 	for(i=0;i<12;i++)
 		if(client_host[i]!=NULL)
@@ -84,24 +80,3 @@ void printInfo(char *server_host, char* client_host[]){
 				row++;
 			}
 }
-
-/*int main(){
-	char ch;
-	initscr();
-	noecho();
-	while ((ch = getch()) != '\n'){
-		//printw("%d", ch);
-		if (ch == 127){
-			backspace();
-			//backspace();
-		}
-		else addch(ch);
-	}
-	int i;
-	for (i=0; i<50; i++){
-		printw("%d\n", i);
-		refresh();
-	}
-	sleep(2);
-	endwin();
-}*/
