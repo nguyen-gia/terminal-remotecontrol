@@ -34,4 +34,8 @@ int parse(char *cmd, char *rtcargv[]);
 int acceptNewConnect(int serv_socket, char *hostbuf);
 void add_client_host(char *client_hosts[], int newfd, char* hostbuf);
 int run_server(int serv_socket);
+int receive_and_run(int* ctrl_sock_fd, int serv_socket, int max_sock_fd, fd_set* fds_init_addr, char*path, char* client_hosts[], int* mark);
+int send_client_hosts(char* client_hosts[], int newfd);
+int send_connection_info(int newfd, char *path, char *server_host, char *client_hosts[]);
+int run_server(int serv_socket);
 
